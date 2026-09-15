@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+.vercel
+.env
+.env.local
+*.tsbuildinfo
+.DS_Store
+# The raw reference corpus stays local. The built index in data/index is committed.
+corpus/*
+!corpus/.gitkeep
+.next-build

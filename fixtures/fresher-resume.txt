@@ -1,0 +1,46 @@
+Ananya Raghavan
+ananya.raghavan02@gmail.com | +91 98765 43210 | linkedin.com/in/ananya-raghavan | https://github.com/ananyar
+Coimbatore, Tamil Nadu
+
+CAREER OBJECTIVE
+Seeking a challenging position in a reputed organisation where I can utilise my skills and knowledge for the growth of the organisation.
+
+EDUCATION
+B.E. in Computer Science and Engineering, PSG College of Technology, June 2020 – May 2024
+CGPA: 8.62/10
+Class XII (CBSE), Kendriya Vidyalaya, 91.4%, March 2020
+
+PROJECTS
+Smart Attendance System | Python, OpenCV, Flask
+• Built a face recognition attendance system used by 120 students across 3 classrooms.
+• Reduced the time taken to mark attendance from 10 minutes to under 40 seconds per class.
+- Deployed the Flask API on a Raspberry Pi 4 connected to the classroom camera.
+Campus Canteen Ordering App | React, Node.js, MongoDB
+• Developed a responsive web application using React and Node.js with a clean and user friendly interface.
+• Integrated Razorpay test mode so students could prepay and skip the queue.
+- Collaborated with cross-functional teams to define, design and ship new features.
+
+INTERNSHIP
+Software Developer Intern, Sparrow Infotech, 01/06/2023 – 31/07/2023
+• Wrote REST endpoints in Express.js for the vendor onboarding module.
+• Fixed bugs and resolved production issues reported by the QA team and end users.
+
+TECHNICAL SKILLS
+Python, Java, JavaScript, React, Node.js, MongoDB, MySQL, Git, OpenCV, Flask
+
+CERTIFICATIONS
+• NPTEL certification in Programming in Java (Elite)
+• AWS Certified Cloud Practitioner, issued 12 March 2024
+
+ACHIEVEMENTS
+• Secured 2nd position in the college level hackathon among 48 teams.
+• Solved 350+ problems on LeetCode and GeeksforGeeks.
+
+PERSONAL DETAILS
+Date of Birth: 15/08/2002
+Father's Name: Mr. R. Raghavan
+Languages Known: English, Tamil, Hindi
+Marital Status: Single
+
+DECLARATION
+I hereby declare that the information furnished above is true to the best of my knowledge and belief.

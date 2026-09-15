@@ -1,0 +1,33 @@
+{
+  "name": "getshortlisted",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "corpus:generate": "tsx scripts/generate-reference-corpus.ts",
+    "corpus:import-open": "NODE_OPTIONS=--max-old-space-size=6144 tsx scripts/import-open-resumes.ts",
+    "corpus:ingest": "NODE_OPTIONS=--max-old-space-size=8192 tsx scripts/ingest-corpus.ts",
+    "corpus:stats": "tsx scripts/corpus-stats.ts"
+  },
+  "dependencies": {
+    "mammoth": "^1.12.3",
+    "next": "^15.5.25",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "unpdf": "^1.8.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24.13.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3"
+  }
+}

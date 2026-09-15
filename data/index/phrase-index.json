@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "shingleSize": 5,
+  "updatedAt": "2026-09-15T19:14:05.448Z",
+  "documents": {
+    "seed": 46547,
+    "openReal": 35038,
+    "openSynthetic": 24138
+  },
+  "uniquePhrases": 20723047,
+  "storedPhrases": 3097247,
+  "storedMinDocCount": 2
+}

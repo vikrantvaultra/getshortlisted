@@ -1,0 +1,39 @@
+ROHAN MEHTA
+Senior Software Engineer
+Email: rohan.mehta.dev@outlook.com | Phone: +91-99887-66554 | www.linkedin.com/in/rohanmehta | github.com/rohan-mehta
+Pune, Maharashtra
+
+PROFESSIONAL SUMMARY
+Backend engineer with 4 years of experience building payment and ledger systems in Java and Spring Boot.
+Experienced in working with cross-functional teams in an Agile environment to deliver high quality software on time.
+
+WORK EXPERIENCE
+Senior Software Engineer | Persistent Systems | June 2023 – Present
+• Designed an idempotent refund service handling 2.4 lakh requests per day with 99.95% uptime.
+• Cut p95 latency of the settlement API from 820 ms to 190 ms by replacing N+1 queries with batched reads.
+• Mentored 3 junior engineers and ran fortnightly design reviews for the payments pod.
+- Migrated 14 cron jobs to Spring Batch with restartable checkpoints.
+
+Software Engineer | Tech Mahindra | July 2021 – May 2023
+• Developed RESTful web services using Spring Boot and integrated them with a MySQL database.
+• Participated in daily stand-up meetings, sprint planning and code reviews as part of an Agile team.
+• Built a reconciliation report that flagged mismatches worth ₹1.2 crore in the first quarter.
+- Wrote JUnit and Mockito test cases to improve code coverage of the service layer.
+
+EDUCATION
+B.Tech in Information Technology, College of Engineering Pune, 2017 – 2021, CGPA 8.1
+
+SKILLS
+Java, Spring Boot, Kafka, PostgreSQL, MySQL, Redis, Docker, Kubernetes, AWS, Git
+
+CERTIFICATIONS
+• Oracle Certified Professional, Java SE 11 Developer (September 2022)
+• AWS Certified Developer – Associate
+
+ACHIEVEMENTS
+• Received the Star Performer award for successful delivery of the banking project.
+
+PERSONAL DETAILS
+Date of Birth: 03-11-1999
+Address: Flat 402, Shivaji Nagar, Pune 411005
+Languages Known: English, Hindi, Marathi
