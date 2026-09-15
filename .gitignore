@@ -10,3 +10,5 @@ out
 corpus/*
 !corpus/.gitkeep
 .next-build
+.env*
+!.env.example
