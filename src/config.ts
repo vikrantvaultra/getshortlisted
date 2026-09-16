@@ -90,7 +90,7 @@ export const PRODUCTS = {
   lifetime: {
     id: "lifetime",
     name: "Lifetime access",
-    pricePaise: 19900,
+    pricePaise: 9900,
     /**
      * "Lifetime" is sold as the lifetime of the service, which is what the
      * copy says. 100 years is simply a far-future expiry — the access cookie
