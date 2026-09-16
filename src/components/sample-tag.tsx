@@ -33,16 +33,16 @@ export function ModelResumeTag({ className = "ml-2" }: { className?: string }) {
 }
 
 /**
- * Buyer-facing label for a resume from an open dataset of AI-generated
- * resumes. Shown so nobody mistakes it for a real person or a real offer.
+ * Buyer-facing label for a generated resume from an open dataset. Shown so
+ * nobody mistakes it for a real person or a real offer.
  */
-export function AiGeneratedTag({ className = "ml-2" }: { className?: string }) {
+export function ExampleResumeTag({ className = "ml-2" }: { className?: string }) {
   return (
     <span
       className={`${className} inline-flex items-center rounded-md bg-marker-soft px-2 py-0.5 align-middle font-mono text-[0.65rem] font-medium tracking-wide text-marker-ink uppercase ring-1 ring-marker/60`}
-      title="An AI-generated example from an openly licensed dataset — not a real person's resume"
+      title="An example from an openly licensed dataset of generated resumes — not a real person's resume"
     >
-      AI-generated
+      Example
     </span>
   );
 }
@@ -52,7 +52,7 @@ export function AiGeneratedTag({ className = "ml-2" }: { className?: string }) {
  * carry none; the hardcoded demo submissions read as model resumes.
  */
 export function OriginTag({ resume, className }: { resume: Pick<LibraryResume, "origin" | "sample">; className?: string }) {
-  if (resume.origin === "open-dataset") return <AiGeneratedTag className={className} />;
+  if (resume.origin === "open-dataset") return <ExampleResumeTag className={className} />;
   if (resume.sample) return <ModelResumeTag className={className} />;
   return null;
 }

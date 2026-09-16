@@ -29,6 +29,8 @@ export type DomainEntry = {
   detectable: boolean;
   /** Set when this domain has too few readable resumes: the closest domain that has them. */
   readableFrom: string | null;
+  /** Other domains, most similar first, same field ahead of the rest. */
+  similar: string[];
   stats: DomainStats;
   profile: ProfileTerm[];
 };

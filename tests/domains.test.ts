@@ -90,8 +90,15 @@ describe("detectDomain", () => {
 
   test("keeps software and data resumes in tech", () => {
     const tech = new Set(["software", "data", "cloud-security"]);
-    const inTech = LIBRARY_RESUMES.filter((resume) => tech.has(detectDomain(resume.redactedText)?.field ?? "")).length;
-    assert.ok(inTech >= 28, `${inTech}/30`);
+    const written = LIBRARY_RESUMES.filter((resume) => tech.has(DOMAIN_FIELDS[resume.domain]!));
+    const inTech = written.filter((resume) => tech.has(detectDomain(resume.redactedText)?.field ?? "")).length;
+    assert.ok(inTech >= written.length - 2, `${inTech}/${written.length}`);
+  });
+
+  test("keeps the hand-written engineering resumes in engineering", () => {
+    const written = LIBRARY_RESUMES.filter((resume) => DOMAIN_FIELDS[resume.domain] === "engineering");
+    assert.ok(written.length >= 12);
+    for (const resume of written) assert.equal(detectDomain(resume.redactedText)?.field, "engineering", resume.id);
   });
 
   test("a 300-bed hospital is not a B.Ed", () => {
@@ -126,6 +133,18 @@ describe("library and compare scope", () => {
     assert.ok(set.ranges.wordCount && set.ranges.wordCount.n >= 20, "accountant word-count range comes from real accountant resumes");
     const result = queryLibrary({ domain: accountant.slug }, 1);
     assert.equal(result.borrowedFrom, set.borrowedFrom);
+  });
+
+  test("civil and mechanical have their own shelves, and their neighbours borrow them", () => {
+    for (const slug of ["civil-engineer", "mechanical-engineer"]) {
+      const set = compareSet(domainBySlug(slug)!);
+      assert.equal(set.borrowedFrom, null, slug);
+      assert.ok(set.resumes.every((resume) => resume.origin === "model" && domainSlug(resume.domain) === slug), slug);
+    }
+    assert.equal(compareSet(domainBySlug("construction")!).borrowedFrom, "Civil Engineer");
+    assert.equal(compareSet(domainBySlug("automobile")!).borrowedFrom, "Mechanical Engineer");
+    const options = domainOptions();
+    assert.equal(options.find((option) => option.slug === "construction")?.borrowedFrom, "Civil Engineer");
   });
 
   test("a company target keeps same-role resumes first", () => {

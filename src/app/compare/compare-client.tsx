@@ -323,7 +323,7 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
                 {hasTypical ? (
                   <>
                     Typical = the middle half of {unlocked.target.total.toLocaleString("en-IN")} {unlocked.target.label} resumes in open datasets (real
-                    and AI-generated). Rows without one use the five below.
+                    resumes and generated examples). Rows without one use the five below.
                   </>
                 ) : (
                   <>Range = lowest to highest across the five resumes below.</>

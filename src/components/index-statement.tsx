@@ -12,7 +12,7 @@ export function indexSentence(stats: IndexStats): string {
 export function indexBreakdown(stats: IndexStats): string {
   const parts = [
     `${n(stats.openRealDocuments)} real (open datasets)`,
-    `${n(stats.openSyntheticDocuments)} AI-generated (open datasets)`,
+    `${n(stats.openSyntheticDocuments)} generated examples (open datasets)`,
     `${n(stats.seedDocuments)} generated reference`,
     `${n(stats.verifiedDocuments)} real verified submissions`,
   ];

@@ -3,7 +3,7 @@ import { LIBRARY_RESUMES } from "@/data/library-resumes";
 import type { LibraryResume, ResumeOrigin } from "@/data/types";
 import { domainLabel, type DomainOption, type FieldId } from "@/lib/fields";
 import type { LibraryFilters } from "@/lib/library-query";
-import { domainByName, domainBySlug, domainEntries, fieldOf, openLibrary } from "./domains";
+import { domainBySlug, domainEntries, fieldOf, openLibrary } from "./domains";
 import type { DomainEntry, DomainStats, MeasureRange } from "./open-library-types";
 import { store } from "./store";
 
@@ -62,14 +62,38 @@ export function resumeField(resume: LibraryResume): FieldId {
 }
 
 /**
- * A domain's own resumes, topped up from its closest stocked domain when it
- * has fewer than a Compare set. `borrowedFrom` says whose shelf that was.
+ * A domain's own resumes, topped up from the most similar domain that has a
+ * full shelf — counting hand-written and approved resumes, not just the
+ * build's — when it has fewer than a Compare set. `borrowedFrom` says whose.
  */
 export function shelf(entry: DomainEntry, pool = allResumes()) {
   const own = pool.filter((resume) => resume.domain === entry.domain);
-  const donor = own.length < COMPARE.SET_SIZE && entry.readableFrom ? domainByName(entry.readableFrom) : undefined;
-  const borrowed = donor ? pool.filter((resume) => resume.domain === donor.domain) : [];
-  return { own, borrowed, borrowedFrom: borrowed.length ? donor!.domain : null };
+  if (own.length >= COMPARE.SET_SIZE) return { own, borrowed: [], borrowedFrom: null };
+  const donor = donorFor(entry, pool);
+  const borrowed = donor ? pool.filter((resume) => resume.domain === donor) : [];
+  return { own, borrowed, borrowedFrom: borrowed.length ? donor : null };
+}
+
+/**
+ * Where the obvious neighbour isn't what term similarity finds (the real
+ * engineering samples are small), say it outright. Checked before `similar`.
+ */
+const PREFERRED_DONORS: Record<string, string[]> = {
+  Automobile: ["Mechanical Engineer"],
+  Aviation: ["Mechanical Engineer"],
+  "Automation Engineer": ["Robotics Engineer", "Mechanical Engineer"],
+  Engineering: ["Mechanical Engineer", "Civil Engineer"],
+  Construction: ["Civil Engineer"],
+  "Electrical Engineer": ["Mechanical Engineer"],
+  "Electrical Engineering": ["Mechanical Engineer"],
+};
+
+function donorFor(entry: DomainEntry, pool: LibraryResume[]): string | null {
+  const counts = new Map<string, number>();
+  for (const resume of pool) counts.set(resume.domain, (counts.get(resume.domain) ?? 0) + 1);
+  const stocked = (domain: string) => (counts.get(domain) ?? 0) >= COMPARE.SET_SIZE;
+  const candidates = [...(PREFERRED_DONORS[entry.domain] ?? []), ...(entry.similar ?? []), ...(entry.readableFrom ? [entry.readableFrom] : [])];
+  return candidates.find(stocked) ?? null;
 }
 
 /** Every domain, as the pickers show it, with the size of its shelf. */
@@ -79,13 +103,14 @@ export function domainOptions(): DomainOption[] {
   for (const resume of all) counts.set(resume.domain, (counts.get(resume.domain) ?? 0) + 1);
   return domainEntries().map((entry) => {
     const readable = counts.get(entry.domain) ?? 0;
+    const donor = readable < COMPARE.SET_SIZE ? donorFor(entry, all) : null;
     return {
       slug: entry.slug,
       label: domainLabel(entry.domain),
       field: entry.field,
       total: entry.real + entry.synthetic,
       readable,
-      borrowedFrom: readable < COMPARE.SET_SIZE && entry.readableFrom ? domainLabel(entry.readableFrom) : null,
+      borrowedFrom: donor ? domainLabel(donor) : null,
     };
   });
 }

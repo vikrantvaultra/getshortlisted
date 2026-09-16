@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRightIcon, LockIcon, SparkleIcon } from "@/components/icons";
-import { AiGeneratedTag, ModelResumeTag, OriginTag } from "@/components/sample-tag";
+import { ExampleResumeTag, ModelResumeTag, OriginTag } from "@/components/sample-tag";
 import type { LibraryResume } from "@/data/types";
 import { DOMAIN_COOKIE, domainLabel, fieldLabel } from "@/lib/fields";
 import { hasActiveFilters, libraryHref, parseLibraryParams, type RawSearchParams } from "@/lib/library-query";
@@ -222,10 +222,11 @@ function SampleNotice({ resumes }: { resumes: LibraryResume[] }) {
       )}
       {generated > 0 && (
         <p>
-          <AiGeneratedTag className="mr-1" /> resumes come from{" "}
+          <ExampleResumeTag className="mr-1" /> resumes come from{" "}
           <Link href="/sources" className="font-semibold text-text underline">
             openly licensed datasets
           </Link>{" "}
+          of generated resumes
           and show how resumes in each role are usually written. None is a real person&apos;s.
         </p>
       )}

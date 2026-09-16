@@ -1049,4 +1049,425 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
       • CodeChef 4 star
     `,
   },
+  // ─── Civil engineering ─────────────────────────────────────────────────────
+  {
+    id: "lib-civil-01",
+    domain: "Civil Engineer",
+    company: "L&T Construction",
+    role: "Graduate Engineer Trainee — Civil",
+    year: 2025,
+    level: "fresher",
+    collegeTier: "Tier 2",
+    city: "Chennai",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      EDUCATION
+      B.E., Civil Engineering — [College removed], Tier 2 — 2021 – 2025
+      CGPA 8.2 / 10
+      Class XII, Tamil Nadu State Board — 91%
+      INTERNSHIPS
+      Site Intern — Metro rail viaduct package, Chennai — 2024
+      • Checked reinforcement of 14 pier caps against bar bending schedules before each pour
+      • Recorded cube test results for 60 concrete batches; flagged 2 batches below M40 target strength
+      • Updated the daily progress report and labour count for the section engineer
+      Summer Trainee — PWD Building Division — 2023
+      • Took measurements for the running account bill of a two-storey school block
+      PROJECTS
+      Design of a G+4 Residential Building | STAAD Pro, AutoCAD
+      • Modelled frames for dead, live and seismic load (Zone III) as per IS 1893 and IS 456
+      • Designed slabs, beams and isolated footings; reduced steel quantity 7% by revising beam sizes
+      • Prepared structural drawings and a bar bending schedule for 42 members
+      Strength of Concrete with 20% Fly Ash Replacement
+      • Cast and tested 54 cubes; 28-day strength fell only 4% while cement use dropped by a fifth
+      SKILLS
+      AutoCAD, STAAD Pro, Revit (basics), MS Project, Excel, quantity estimation
+      CERTIFICATIONS
+      • NPTEL Design of Reinforced Concrete Structures — Elite
+      ACHIEVEMENTS
+      • Captain, college concrete canoe team; finished 3rd of 26 at a national civil fest
+    `,
+  },
+  {
+    id: "lib-civil-02",
+    domain: "Civil Engineer",
+    company: "Tata Projects",
+    role: "Site Engineer",
+    year: 2024,
+    level: "experienced",
+    collegeTier: "Tier 3",
+    city: "Hyderabad",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      SUMMARY
+      Site engineer with 4 years on high-rise residential and industrial sheds. Comfortable owning a floor cycle from shuttering to de-shuttering.
+      EXPERIENCE
+      Site Engineer — Residential contractor, Hyderabad — 2021 – Present
+      • Execute RCC work for two G+18 towers with 120 workers across three subcontractors
+      • Brought the typical floor cycle from 12 days to 9 by sequencing shuttering and MEP sleeves in parallel
+      • Check reinforcement, cover blocks and shuttering alignment before every slab pour; zero rework on 26 slabs
+      • Reconcile cement and steel monthly; cut steel wastage from 3.1% to 1.8%
+      • Prepare BOQ quantities and sub-contractor bills for the project manager
+      Junior Engineer — Industrial shed builder, Medak — 2020 – 2021
+      • Supervised PEB foundations and grade slab for a 40,000 sq ft warehouse
+      • Maintained site safety register; the site went 210 days without a lost-time incident
+      EDUCATION
+      B.Tech, Civil Engineering — [College removed], Tier 3 — 2016 – 2020
+      SKILLS
+      Site execution, RCC, formwork, BBS, quantity surveying, AutoCAD, MS Project, Excel
+      CERTIFICATIONS
+      • IOSH Managing Safely
+    `,
+  },
+  {
+    id: "lib-civil-03",
+    domain: "Civil Engineer",
+    company: "Afcons Infrastructure",
+    role: "Planning Engineer",
+    year: 2025,
+    level: "experienced",
+    collegeTier: "Tier 1",
+    city: "Mumbai",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      SUMMARY
+      Planning engineer on bridge and tunnel packages. I turn site progress into schedules the client can trust.
+      EXPERIENCE
+      Planning Engineer — Infrastructure EPC contractor, Mumbai — 2022 – Present
+      • Own the Primavera P6 schedule for a 2.1 km elevated corridor with 1,400 activities
+      • Built a weekly look-ahead that cut idle crane hours by 18% across 3 launching gantries
+      • Prepared delay analysis that supported a 4-month extension of time without liquidated damages
+      • Track cash flow against the baseline; monthly billing variance kept under 3%
+      Quantity Surveyor — Same company — 2020 – 2022
+      • Measured and certified 22 running bills worth 180 crore rupees
+      • Reconciled BOQ against drawings and caught 6 crore rupees of missed variation items
+      EDUCATION
+      M.Tech, Construction Management — [College removed], Tier 1 — 2018 – 2020
+      B.E., Civil Engineering — [College removed], Tier 2 — 2014 – 2018
+      SKILLS
+      Primavera P6, MS Project, quantity surveying, contract administration, earned value, Excel, Power BI
+      CERTIFICATIONS
+      • PMP — Project Management Institute
+    `,
+  },
+  {
+    id: "lib-civil-04",
+    domain: "Civil Engineer",
+    company: "Shapoorji Pallonji",
+    role: "Graduate Engineer Trainee — Civil",
+    year: 2026,
+    level: "fresher",
+    collegeTier: "Tier 3",
+    city: "Pune",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      OBJECTIVE
+      Civil engineering graduate looking for a site role on building projects, where I can learn execution from the ground up.
+      EDUCATION
+      B.E., Civil Engineering — [College removed], Tier 3 — 2022 – 2026
+      CGPA 7.9 / 10
+      Diploma in Civil Engineering — Government Polytechnic — 2019 – 2022
+      INTERNSHIPS
+      Site Trainee — Township developer, Pune — 2025
+      • Supervised brickwork and plastering on 3 floors; checked line, level and plumb every morning
+      • Measured work done for the contractor's bill and matched it with the site engineer's records
+      • Maintained the material inward register for cement, sand and aggregate
+      PROJECTS
+      Rainwater Harvesting Design for the College Campus
+      • Estimated 1.8 million litres a year of harvestable runoff and designed 4 recharge pits
+      • Costed the plan at 6.2 lakh rupees; the college approved the first pit
+      Road Estimate for a Village Link Road | Excel
+      • Prepared a detailed estimate for 1.2 km of WBM road using the state schedule of rates
+      SKILLS
+      AutoCAD, estimation and costing, levelling, total station (basic), MS Excel
+      ACHIEVEMENTS
+      • Diploma topper in the district, 88%
+      • NSS volunteer; led a 40-student team building soak pits in two villages
+    `,
+  },
+  {
+    id: "lib-civil-05",
+    domain: "Civil Engineer",
+    company: "NCC Limited",
+    role: "Structural Design Engineer",
+    year: 2024,
+    level: "experienced",
+    collegeTier: "Tier 1",
+    city: "Hyderabad",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      SUMMARY
+      Structural design engineer, 3 years, RCC and steel buildings. Designs checked to IS 456, IS 800 and IS 1893.
+      EXPERIENCE
+      Structural Design Engineer — Design consultancy, Hyderabad — 2021 – Present
+      • Designed 11 buildings from G+3 to G+22, including two hospitals with post-tensioned slabs
+      • Optimised a raft foundation on black cotton soil, saving 140 tonnes of steel
+      • Built an Excel tool for column design that cut checking time per building from 2 days to 3 hours
+      • Reviewed shop drawings and answered 300+ site queries within 48 hours
+      Design Intern — Same consultancy — 2020 – 2021
+      • Modelled a 6-storey steel parking structure in STAAD Pro and prepared connection details
+      EDUCATION
+      M.Tech, Structural Engineering — [College removed], Tier 1 — 2019 – 2021
+      B.Tech, Civil Engineering — [College removed], Tier 2 — 2015 – 2019
+      GATE Civil — AIR 842
+      SKILLS
+      ETABS, SAFE, STAAD Pro, AutoCAD, Revit Structure, IS codes, Excel VBA
+      PUBLICATIONS
+      • Seismic response of RC frames with infill walls — national conference on structural engineering
+    `,
+  },
+  {
+    id: "lib-civil-06",
+    domain: "Civil Engineer",
+    company: "Godrej Properties",
+    role: "Quality Engineer — Civil",
+    year: 2026,
+    level: "fresher",
+    collegeTier: "Tier 2",
+    city: "Bengaluru",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      EDUCATION
+      B.Tech, Civil Engineering — [College removed], Tier 2 — 2022 – 2026
+      CGPA 8.5 / 10
+      INTERNSHIPS
+      Quality Control Intern — Residential developer, Bengaluru — 2025
+      • Ran slump, cube and sieve tests for 3 towers; logged 240 results in the quality register
+      • Wrote 18 non-conformance reports for honeycombing and cover issues and tracked each to closure
+      • Prepared checklists for waterproofing and tiling that the site team now uses on every flat
+      PROJECTS
+      Self-Compacting Concrete with Recycled Aggregate
+      • Replaced 30% of coarse aggregate with crushed demolition waste; met M30 strength with a superplasticiser
+      Crack Mapping with a Phone Camera | Python, OpenCV
+      • Measured crack width from photos within 0.1 mm on 50 test images
+      SKILLS
+      Concrete testing, quality checklists, AutoCAD, Excel, Python (basics)
+      CERTIFICATIONS
+      • NPTEL Concrete Technology — Elite + Silver
+      ACHIEVEMENTS
+      • Best project award, civil department, 2026
+    `,
+  },
+
+  // ─── Mechanical engineering ────────────────────────────────────────────────
+  {
+    id: "lib-mech-01",
+    domain: "Mechanical Engineer",
+    company: "Tata Motors",
+    role: "Graduate Engineer Trainee — Mechanical",
+    year: 2025,
+    level: "fresher",
+    collegeTier: "Tier 2",
+    city: "Pune",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      EDUCATION
+      B.E., Mechanical Engineering — [College removed], Tier 2 — 2021 – 2025
+      CGPA 8.4 / 10
+      INTERNSHIPS
+      Manufacturing Intern — Commercial vehicle plant, Pune — 2024
+      • Studied cycle time on the axle assembly line and removed 2 non-value steps, saving 38 seconds per axle
+      • Built a poka-yoke fixture sketch for a bolt-torque miss that caused 11 rework cases a month
+      • Ran a 5S drive in the tool crib; search time for gauges dropped from 6 minutes to under 1
+      PROJECTS
+      Design of an Electric Go-Kart Chassis | SolidWorks, ANSYS
+      • Designed a tubular chassis and ran static and modal analysis; weight 34 kg with a safety factor of 2.1
+      • Team finished 5th of 48 at a national go-kart championship
+      Heat Transfer Enhancement with Dimpled Tubes
+      • Tested 3 dimple patterns; best one raised Nusselt number 22% for a 9% pressure-drop penalty
+      SKILLS
+      SolidWorks, CATIA V5 (basics), ANSYS Workbench, AutoCAD, GD&T, MS Excel
+      CERTIFICATIONS
+      • Lean Six Sigma Yellow Belt
+      ACHIEVEMENTS
+      • SAE collegiate club treasurer; managed a 9 lakh rupee budget
+    `,
+  },
+  {
+    id: "lib-mech-02",
+    domain: "Mechanical Engineer",
+    company: "Mahindra & Mahindra",
+    role: "Design Engineer",
+    year: 2024,
+    level: "experienced",
+    collegeTier: "Tier 1",
+    city: "Chennai",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      SUMMARY
+      Design engineer, 4 years in automotive body and chassis parts, from concept CAD to PPAP.
+      EXPERIENCE
+      Design Engineer — Automotive R&D centre, Chennai — 2021 – Present
+      • Own 26 sheet metal and plastic parts for an SUV tailgate module in CATIA V5
+      • Cut tailgate mass by 1.9 kg by moving two brackets from steel to glass-filled nylon
+      • Ran DFMEA with suppliers and closed 41 action items before tool kick-off
+      • Released 180 drawings with full GD&T; zero drawing-related tooling changes at trial
+      Graduate Engineer — Tier 1 supplier, Chennai — 2020 – 2021
+      • Designed seat-track brackets and supported crash-test correlation in LS-DYNA
+      EDUCATION
+      B.Tech, Mechanical Engineering — [College removed], Tier 1 — 2016 – 2020
+      SKILLS
+      CATIA V5, NX, Teamcenter, GD&T (ASME Y14.5), DFMEA, tolerance stack-up, LS-DYNA (basics)
+      CERTIFICATIONS
+      • GD&T Professional — ASME
+    `,
+  },
+  {
+    id: "lib-mech-03",
+    domain: "Mechanical Engineer",
+    company: "Maruti Suzuki",
+    role: "Production Engineer",
+    year: 2025,
+    level: "experienced",
+    collegeTier: "Tier 3",
+    city: "Gurugram",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      SUMMARY
+      Production engineer with 5 years on press and weld shops. I run shifts, fix bottlenecks and hold the line on quality.
+      EXPERIENCE
+      Production Engineer — Passenger car plant, Manesar — 2020 – Present
+      • Run a weld shop shift of 64 operators and 38 robots producing 900 bodies a day
+      • Raised line OEE from 78% to 86% by attacking the top 5 breakdown causes with the maintenance team
+      • Brought spot-weld defects from 420 to 95 PPM through a Kaizen on electrode tip dressing
+      • Trained 30 new operators on standard work and safety; zero reportable accidents in 2 years
+      Junior Engineer — Auto components supplier, Gurugram — 2019 – 2020
+      • Handled a 250-tonne press line and cut die changeover time from 45 to 18 minutes with SMED
+      EDUCATION
+      B.Tech, Mechanical Engineering — [College removed], Tier 3 — 2015 – 2019
+      Diploma in Mechanical Engineering — 2012 – 2015
+      SKILLS
+      Production planning, OEE, TPM, Kaizen, SMED, 5S, root cause analysis, SAP PP
+      CERTIFICATIONS
+      • Six Sigma Green Belt
+    `,
+  },
+  {
+    id: "lib-mech-04",
+    domain: "Mechanical Engineer",
+    company: "Bosch India",
+    role: "Quality Engineer",
+    year: 2026,
+    level: "fresher",
+    collegeTier: "Tier 2",
+    city: "Bengaluru",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      EDUCATION
+      B.E., Mechanical Engineering — [College removed], Tier 2 — 2022 – 2026
+      CGPA 8.7 / 10
+      INTERNSHIPS
+      Quality Intern — Fuel system components plant, Bengaluru — 2025
+      • Ran a gauge R&R study on 4 bore gauges; replaced one with 31% variation
+      • Built control charts for a honing process and spotted a drift two days before parts went out of tolerance
+      • Supported 8D analysis for a customer complaint on burrs; the fix cut rejects from 1.2% to 0.3%
+      PROJECTS
+      Vision-Based Inspection of Gear Teeth | Python, OpenCV
+      • Detected missing and chipped teeth on 300 gears with 97% accuracy using a phone camera rig
+      Design of a Low-Cost Hydraulic Press
+      • Designed and built a 5-tonne press for the college workshop for 38,000 rupees
+      SKILLS
+      SPC, MSA, 8D, 7 QC tools, CMM (basics), AutoCAD, SolidWorks, Minitab, Python
+      ACHIEVEMENTS
+      • Winner, college Kaizen competition — 34 teams
+    `,
+  },
+  {
+    id: "lib-mech-05",
+    domain: "Mechanical Engineer",
+    company: "Ashok Leyland",
+    role: "Maintenance Engineer",
+    year: 2024,
+    level: "experienced",
+    collegeTier: "Tier 3",
+    city: "Hosur",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      SUMMARY
+      Maintenance engineer, 6 years on CNC machining lines and utilities. Preventive first, breakdown second.
+      EXPERIENCE
+      Maintenance Engineer — Engine machining plant, Hosur — 2019 – Present
+      • Maintain 42 CNC machines and 6 transfer lines running three shifts
+      • Cut breakdown hours by 37% in a year by moving 18 machines to condition-based maintenance
+      • Raised MTBF on the crankshaft line from 96 to 170 hours after spindle vibration monitoring
+      • Kept spares inventory at 42 lakh rupees, down from 60, without a single stock-out stoppage
+      Maintenance Technician — Foundry, Coimbatore — 2017 – 2019
+      • Serviced hydraulics and pneumatics on 3 moulding machines
+      EDUCATION
+      B.E., Mechanical Engineering (part-time) — [College removed], Tier 3 — 2015 – 2019
+      Diploma in Mechanical Engineering — 2012 – 2015
+      SKILLS
+      CNC maintenance (Fanuc, Siemens), hydraulics, pneumatics, TPM, vibration analysis, PLC basics, SAP PM
+      CERTIFICATIONS
+      • Certified Maintenance and Reliability Technician
+    `,
+  },
+  {
+    id: "lib-mech-06",
+    domain: "Mechanical Engineer",
+    company: "Bharat Forge",
+    role: "Graduate Engineer Trainee — Mechanical",
+    year: 2026,
+    level: "fresher",
+    collegeTier: "Tier 3",
+    city: "Kolhapur",
+    pageCount: 1,
+    verified: true,
+    sample: true,
+    origin: "model",
+    redactedText: text`
+      OBJECTIVE
+      Mechanical engineering graduate who wants to work on a forging or machining shop floor and grow into process engineering.
+      EDUCATION
+      B.E., Mechanical Engineering — [College removed], Tier 3 — 2022 – 2026
+      CGPA 7.8 / 10
+      Class XII, Maharashtra State Board — 84%
+      INTERNSHIPS
+      Shop Floor Trainee — Forging unit, Kolhapur — 2025
+      • Recorded die temperatures on a 1,600-tonne press for 4 weeks and linked cold dies to underfill defects
+      • Helped set up a die pre-heating checklist; underfill rejects fell from 2.4% to 1.1% that month
+      • Measured 500 forgings with vernier and height gauge and entered data for SPC
+      PROJECTS
+      Solar-Powered Grain Dryer
+      • Built a dryer that cut drying time for 50 kg of soybean from 3 days to 11 hours; used by 2 farmers in the village
+      CNC Programming of a Flange | Fanuc G-code
+      • Wrote and simulated the program; machined the part within 0.05 mm on the college lathe
+      SKILLS
+      AutoCAD, SolidWorks, CNC programming (G and M codes), metrology, MS Excel, Marathi, Hindi, English
+      ACHIEVEMENTS
+      • 2nd prize, state-level project exhibition
+    `,
+  },
 ];

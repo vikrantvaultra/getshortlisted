@@ -13,6 +13,8 @@
  *               promises they are only ever counted.
  *   - readableFrom  for a domain with too few AI-generated resumes, the
  *               closest domain that has them (same field preferred)
+ *   - similar   the closest domains overall, so the app can prefer one that
+ *               has hand-written resumes (src/data) over readableFrom
  */
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -41,6 +43,8 @@ const PROFILE_TERMS = 120;
 const MIN_TERM_SHARE = 0.06;
 /** Domains with fewer resumes than this still get stats and shelves but aren't auto-detected. */
 const MIN_DOCS_TO_DETECT = 12;
+/** How many similar domains each domain lists, for the app to borrow a shelf from. */
+const SIMILAR_DOMAINS = 12;
 
 const hash = (value: string) => createHash("sha1").update(value).digest("hex");
 
@@ -405,6 +409,15 @@ async function main() {
           .sort((a, b) => b.score - a.score)[0];
         readableFrom = best ? best.other.label : null;
       }
+      // Every other domain, most similar first (same field ahead of the rest). The app picks
+      // the first one that has a full shelf once hand-written resumes are counted too.
+      const mine = shares.get(work.label)!;
+      const similar = [...domains.values()]
+        .filter((other) => other.label !== work.label)
+        .map((other) => ({ other, score: cosine(mine, shares.get(other.label)!) + (other.field === work.field ? 1 : 0) }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, SIMILAR_DOMAINS)
+        .map(({ other }) => other.label);
       const column = (key: keyof Sample) => quartiles(work.measures.map((m) => m[key]).filter((v): v is number => v !== null));
       return {
         slug: domainSlug(work.label),
@@ -414,6 +427,7 @@ async function main() {
         synthetic: work.synthetic,
         detectable: work.sampled >= MIN_DOCS_TO_DETECT,
         readableFrom,
+        similar,
         stats: {
           pageCount: column("pageCount"),
           sectionCount: column("sectionCount"),

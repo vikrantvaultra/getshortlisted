@@ -7,7 +7,7 @@ import { indexStats } from "@/lib/server/phrase-index";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Where our resumes come from",
-  description: "Every dataset in the index behind the resume check, with its license, whether it's real or AI-generated, and how many resumes we kept.",
+  description: "Every dataset in the index behind the resume check, with its license, whether it's real or a generated example, and how many resumes we kept.",
 };
 
 const n = (value: number) => value.toLocaleString("en-IN");
@@ -23,7 +23,7 @@ export default function SourcesPage() {
 
   const tiles = [
     { label: "Real resumes · open datasets", value: stats.openRealDocuments, tone: "bg-pen-wash text-pen" },
-    { label: "AI-generated · open datasets", value: stats.openSyntheticDocuments, tone: "bg-marker-soft text-marker-ink" },
+    { label: "Generated examples · open datasets", value: stats.openSyntheticDocuments, tone: "bg-marker-soft text-marker-ink" },
     { label: "Generated reference resumes", value: stats.seedDocuments, tone: "bg-wash text-soft" },
     { label: "Real verified submissions", value: stats.verifiedDocuments, tone: "bg-[#effaf3] text-[#0b6b35]" },
   ];
@@ -38,7 +38,7 @@ export default function SourcesPage() {
       </h1>
       <p className="rise mt-4 max-w-2xl text-lg text-soft" style={{ ["--delay" as string]: "120ms" }}>
         Your resume is compared with every document below. Real people&apos;s resumes are only ever counted — their text is never shown to
-        anyone. A few hundred of the AI-generated ones appear in the Library as labelled examples, with names removed. Emails, phone numbers and
+        anyone. A few hundred of the generated examples appear in the Library as labelled examples, with names removed. Emails, phone numbers and
         links were removed from everything before it was stored.
       </p>
 
@@ -82,7 +82,7 @@ export default function SourcesPage() {
                     <span className={`chip px-2.5 py-1 text-xs font-semibold ${source.kind === "real" ? "bg-pen-wash text-pen" : "bg-marker-soft text-marker-ink"}`}>
                       {source.kind === "real" ? "Real resumes" : (
                         <>
-                          <SparkleIcon className="h-3.5 w-3.5" /> AI-generated
+                          <SparkleIcon className="h-3.5 w-3.5" /> Generated examples
                         </>
                       )}
                     </span>

@@ -77,7 +77,7 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
           )}
           {resume.origin === "open-dataset" && (
             <p className="mt-4 text-sm text-soft">
-              An AI-generated example of how {domainLabel(resume.domain)} resumes are usually written — not a real person&apos;s, and not a
+              A generated example of how {domainLabel(resume.domain)} resumes are usually written — not a real person&apos;s, and not a
               guarantee of an offer. Names and contact details are removed.
               {resume.source && (
                 <>
