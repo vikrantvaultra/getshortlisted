@@ -54,18 +54,56 @@ export const RATE_LIMITS = {
 
 // ─── Paid features (v2) ──────────────────────────────────────────────────────
 
+/**
+ * Both products unlock exactly the same thing — Compare and the full Library.
+ * They differ only in how long access lasts, so the choice is a price anchor,
+ * never a feature gate. Keep it that way: a tier that withheld a feature would
+ * make the cheaper price a bait.
+ */
 export const PRODUCTS = {
-  /** One price unlocks everything paid: Compare and the full Library. */
   pass: {
     id: "pass",
-    name: "Full access",
+    name: "30-day pass",
     pricePaise: 4900,
     accessDays: 30,
-    description: "Compare your resume with five that got the offer, and read every resume in the library.",
+    lifetime: false,
+    description: "Compare your resume with five built to the shortlisted standard, and read every resume in the library.",
+  },
+  lifetime: {
+    id: "lifetime",
+    name: "Lifetime access",
+    pricePaise: 19900,
+    /**
+     * "Lifetime" is sold as the lifetime of the service, which is what the
+     * copy says. 100 years is simply a far-future expiry — the access cookie
+     * is capped at MAX_COOKIE_DAYS regardless, and a buyer re-opens access on
+     * any device with their email + order ID via /unlock?restore=1.
+     */
+    accessDays: 365 * 100,
+    lifetime: true,
+    description: "Compare your resume with five built to the shortlisted standard, and read every resume in the library. No expiry.",
   },
 } as const;
 
 export type ProductId = keyof typeof PRODUCTS;
+
+/** The pass a buyer gets by default, and the price every other tier anchors against. */
+export const BASE_PRODUCT: ProductId = "pass";
+
+/**
+ * Browsers cap cookie lifetime near 400 days (Chrome enforces it), so a
+ * lifetime grant can't live in the cookie alone. Access is restored from
+ * Razorpay instead; this constant keeps us honest with what we set.
+ */
+export const MAX_COOKIE_DAYS = 400;
+
+/**
+ * Smallest number of passes that costs strictly more than the given product.
+ * Drives the anchor line, so the claim stays true if either price changes.
+ */
+export function passesToBeat(product: ProductId): number {
+  return Math.floor(PRODUCTS[product].pricePaise / PRODUCTS.pass.pricePaise) + 1;
+}
 
 export const LIBRARY = {
   /** Resume cards per page. */

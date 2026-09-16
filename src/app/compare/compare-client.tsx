@@ -74,9 +74,9 @@ const STEPS = [
   ["See the counts", "Pages, sections, bullets per project and shared phrasing — yours next to five resumes built to the shortlisted standard."],
 ] as const;
 
-type Props = { companies: string[]; price: string; accessDays: number; demo: boolean };
+type Props = { companies: string[]; demo: boolean };
 
-export function CompareClient({ companies, price, accessDays, demo }: Props) {
+export function CompareClient({ companies, demo }: Props) {
   const [company, setCompany] = useState(companies[0] ?? "");
   const [level, setLevel] = useState<Level | "">("");
   const [file, setFile] = useState<File | null>(null);
@@ -206,7 +206,7 @@ export function CompareClient({ companies, price, accessDays, demo }: Props) {
       )}
 
       {result?.locked && !busy && (
-        <LockedResult result={result} price={price} accessDays={accessDays} demo={demo} onPaid={() => void compare()} />
+        <LockedResult result={result} demo={demo} onPaid={() => void compare()} />
       )}
 
       {unlocked && you && (
@@ -314,14 +314,10 @@ export function CompareClient({ companies, price, accessDays, demo }: Props) {
  */
 function LockedResult({
   result,
-  price,
-  accessDays,
   demo,
   onPaid,
 }: {
   result: Extract<CompareResponse, { locked: true }>;
-  price: string;
-  accessDays: number;
   demo: boolean;
   onPaid: () => void;
 }) {
@@ -369,8 +365,6 @@ function LockedResult({
           <PayPanel
             className="w-full max-w-sm"
             title={`Your comparison with ${placed.length} ${company} resumes is ready`}
-            price={price}
-            accessDays={accessDays}
             demo={demo}
             onPaid={onPaid}
           />

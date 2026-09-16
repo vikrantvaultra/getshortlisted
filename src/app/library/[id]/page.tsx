@@ -5,11 +5,10 @@ import { ArrowLeftIcon, ShieldIcon } from "@/components/icons";
 import { PayPanel } from "@/components/pay-panel";
 import { ResumeText } from "@/components/resume-text";
 import { ModelResumeTag } from "@/components/sample-tag";
-import { PRODUCTS } from "@/config";
 import { hasAccess } from "@/lib/server/access";
 import { getResume } from "@/lib/server/library";
 import { demoCheckout } from "@/lib/server/razorpay";
-import { formatRupees, paidEnabled } from "@/lib/site";
+import { paidEnabled } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Library", robots: { index: false } };
@@ -80,8 +79,6 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
               <PayPanel
                 className="w-full max-w-sm"
                 title={`Read this ${resume.company} resume in full`}
-                price={formatRupees(PRODUCTS.pass.pricePaise)}
-                accessDays={PRODUCTS.pass.accessDays}
                 demo={demoCheckout()}
               />
             </div>

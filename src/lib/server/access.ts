@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { PRODUCTS, type ProductId } from "@/config";
+import { MAX_COOKIE_DAYS, PRODUCTS, type ProductId } from "@/config";
 import type { LegacyProductId } from "./razorpay";
 import { signPayload, verifyPayload } from "./crypto";
 
@@ -44,7 +44,12 @@ export async function grantAccess(email: string, product: ProductId, orderId: st
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: Math.ceil((Math.max(...grants.map((grant) => grant.expiresAt)) - Date.now()) / 1000),
+    // A lifetime grant outlives any cookie the browser will keep, so cap maxAge
+    // at the browser's own limit. The grant's expiresAt stays the real
+    // authority; once the cookie lapses the buyer restores from their receipt.
+    maxAge: Math.ceil(
+      Math.min(Math.max(...grants.map((grant) => grant.expiresAt)) - Date.now(), MAX_COOKIE_DAYS * 24 * 60 * 60 * 1000) / 1000,
+    ),
   });
   return true;
 }

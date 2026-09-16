@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CheckIcon } from "@/components/icons";
 import { PayPanel } from "@/components/pay-panel";
-import { PRODUCTS } from "@/config";
+import { BASE_PRODUCT, PRODUCTS } from "@/config";
 import { demoCheckout } from "@/lib/server/razorpay";
-import { formatRupees, paidEnabled, safeNextPath } from "@/lib/site";
+import { paidEnabled, safeNextPath } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Unlock", robots: { index: false } };
@@ -12,9 +12,9 @@ export const metadata: Metadata = { title: "Unlock", robots: { index: false } };
 type Props = { searchParams: Promise<{ restore?: string; next?: string }> };
 
 const PERKS = [
-  "Compare: your resume next to 5 verified resumes from your target company",
+  "Compare: your resume next to 5 for your target company, built to the shortlisted standard",
   "Pages, section order, bullets per project and phrasing overlap — counted, not guessed",
-  "Library: read every verified resume, filtered by company, role, year and level",
+  "Library: read every resume in full, filtered by company, role, year and level",
   "Anonymised — no names, contacts or exact dates",
 ];
 
@@ -22,17 +22,16 @@ const PERKS = [
 export default async function UnlockPage({ searchParams }: Props) {
   if (!paidEnabled()) notFound();
   const { restore, next } = await searchParams;
-  const info = PRODUCTS.pass;
 
   return (
     <section className="mx-auto max-w-5xl px-4 pt-8 sm:px-6 sm:pt-14">
       <div className="grid items-start gap-10 md:grid-cols-[1.1fr_1fr] md:gap-14">
         <div className="rise">
-          <span className="sticker">{info.name}</span>
+          <span className="sticker">Full access</span>
           <h1 className="mt-5 text-title font-extrabold">
-            See the resumes that <span className="marker">actually got the offer</span>.
+            Read the resumes that <span className="marker">get shortlisted</span>.
           </h1>
-          <p className="mt-4 text-lg text-soft">{info.description}</p>
+          <p className="mt-4 text-lg text-soft">{PRODUCTS[BASE_PRODUCT].description}</p>
           <ul className="mt-7 space-y-3">
             {PERKS.map((perk, i) => (
               <li key={perk} className="rise flex items-start gap-3" style={{ ["--delay" as string]: `${100 + i * 70}ms` }}>
@@ -46,8 +45,6 @@ export default async function UnlockPage({ searchParams }: Props) {
         </div>
         <PayPanel
           className="self-start"
-          price={formatRupees(info.pricePaise)}
-          accessDays={info.accessDays}
           demo={demoCheckout()}
           startWithRestore={restore === "1"}
           next={safeNextPath(next) ?? "/library"}

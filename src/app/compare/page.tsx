@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PRODUCTS } from "@/config";
 import { compareCompanies } from "@/lib/server/library";
 import { demoCheckout } from "@/lib/server/razorpay";
-import { formatRupees, paidEnabled } from "@/lib/site";
+import { paidEnabled } from "@/lib/site";
 import { CompareClient } from "./compare-client";
 
 export const dynamic = "force-dynamic";
@@ -15,8 +14,6 @@ export default function ComparePage() {
   return (
     <CompareClient
       companies={compareCompanies().map((c) => c.company)}
-      price={formatRupees(PRODUCTS.pass.pricePaise)}
-      accessDays={PRODUCTS.pass.accessDays}
       demo={demoCheckout()}
     />
   );

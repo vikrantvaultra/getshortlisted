@@ -202,7 +202,8 @@ export function Result({ result, paidEnabled, onReset }: { result: ScoreResponse
                     ))}
                   </div>
                   <p className="mt-3 text-sm text-soft">
-                    One payment of {formatRupees(PRODUCTS.pass.pricePaise)} unlocks both for {PRODUCTS.pass.accessDays} days.
+                    One payment unlocks both: {formatRupees(PRODUCTS.pass.pricePaise)} for {PRODUCTS.pass.accessDays} days, or{" "}
+                    {formatRupees(PRODUCTS.lifetime.pricePaise)} for lifetime access. No subscription either way.
                   </p>
                 </>
               ) : (

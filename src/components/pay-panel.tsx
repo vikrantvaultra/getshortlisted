@@ -3,6 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeftIcon, CheckIcon, LockIcon, RefreshIcon, SparkleIcon } from "@/components/icons";
+import { BASE_PRODUCT, PRODUCTS, passesToBeat, type ProductId } from "@/config";
+import { formatRupees } from "@/lib/site";
+
+const TIERS = Object.values(PRODUCTS);
 
 type RazorpayOptions = {
   key: string;
@@ -34,8 +38,6 @@ function loadCheckoutScript(): Promise<boolean> {
 }
 
 export type PayPanelProps = {
-  price: string;
-  accessDays: number;
   demo: boolean;
   /** Heading above the price, e.g. "Your comparison is ready". */
   title?: string;
@@ -50,10 +52,15 @@ export type PayPanelProps = {
   className?: string;
 };
 
-/** The one checkout on the site: ₹49 unlocks Compare and the Library together. */
-export function PayPanel({ price, accessDays, demo, title, startWithRestore = false, onPaid, next, className = "" }: PayPanelProps) {
+/**
+ * The one checkout on the site. Both tiers unlock the same thing — Compare and
+ * the Library — and differ only in how long access lasts, so the cheaper tier
+ * is never a worse product, just a shorter one.
+ */
+export function PayPanel({ demo, title, startWithRestore = false, onPaid, next, className = "" }: PayPanelProps) {
   const router = useRouter();
   const [mode, setMode] = useState<"buy" | "restore">(startWithRestore ? "restore" : "buy");
+  const [product, setProduct] = useState<ProductId>(BASE_PRODUCT);
   const [email, setEmail] = useState("");
   const [orderId, setOrderId] = useState("");
   const [busy, setBusy] = useState(false);
@@ -77,7 +84,7 @@ export function PayPanel({ price, accessDays, demo, title, startWithRestore = fa
     setBusy(true);
     setError("");
     try {
-      const order = await post("/api/pay/order", { product: "pass", email });
+      const order = await post("/api/pay/order", { product, email });
       if (order.demo) {
         await post("/api/pay/verify", { orderId: order.orderId });
         done();
@@ -134,11 +141,54 @@ export function PayPanel({ price, accessDays, demo, title, startWithRestore = fa
           <div className="border-b-2 border-dashed border-edge bg-marker-soft px-6 pt-6 pb-5">
             {title && <p className="font-display text-xl leading-tight font-extrabold">{title}</p>}
             <p className={`kicker ${title ? "mt-3" : ""}`}>Full access · one-time</p>
-            <p className="mt-2 flex items-baseline gap-2">
-              <span className="font-mono text-5xl font-medium tracking-tight">{price}</span>
-              <span className="text-sm font-medium text-marker-ink">for {accessDays} days</span>
+            <fieldset className="mt-3">
+              <legend className="sr-only">Choose how long your access lasts</legend>
+              <div className="space-y-2">
+                {TIERS.map((tier) => {
+                  const active = tier.id === product;
+                  return (
+                    <label
+                      key={tier.id}
+                      className={`flex cursor-pointer items-center gap-3 rounded-2xl bg-white px-4 py-3 transition-shadow ${
+                        active ? "ring-2 ring-pen" : "ring-1 ring-edge hover:ring-edge-strong"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="tier"
+                        className="sr-only"
+                        value={tier.id}
+                        checked={active}
+                        onChange={() => setProduct(tier.id)}
+                      />
+                      <span
+                        aria-hidden
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                          active ? "bg-pen text-white" : "ring-1 ring-edge-strong"
+                        }`}
+                      >
+                        {active && <CheckIcon className="h-3 w-3" />}
+                      </span>
+                      <span className="shrink-0 font-mono text-2xl font-medium tracking-tight">{formatRupees(tier.pricePaise)}</span>
+                      {/* The panel sits in a max-w-sm column on the paywalls, so the
+                          label yields before the price or the badge can wrap. */}
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium text-soft">
+                        {tier.lifetime ? "Lifetime" : `${tier.accessDays} days`}
+                      </span>
+                      {tier.lifetime && (
+                        <span className="shrink-0 rounded-md bg-marker-soft px-2 py-0.5 font-mono text-[0.65rem] font-semibold tracking-wide text-marker-ink uppercase">
+                          Best value
+                        </span>
+                      )}
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
+            <p className="mt-3 text-sm text-marker-ink">
+              {/* Anchor, computed so it stays true if either price moves. */}
+              Lifetime costs less than {passesToBeat("lifetime")} passes — then never again. Both unlock Compare and the whole Library.
             </p>
-            <p className="mt-2 text-sm text-marker-ink">Unlocks Compare and the whole Library.</p>
             <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-sm font-semibold text-marker-ink">
               {["No account needed", "No subscription"].map((point) => (
                 <li key={point} className="flex items-center gap-1.5">
@@ -171,8 +221,13 @@ export function PayPanel({ price, accessDays, demo, title, startWithRestore = fa
             )}
             <button type="submit" className="btn w-full" disabled={busy}>
               <LockIcon className="h-4 w-4" />
-              {busy ? "Opening payment…" : `Pay ${price}`}
+              {busy ? "Opening payment…" : `Pay ${formatRupees(PRODUCTS[product].pricePaise)}`}
             </button>
+            {PRODUCTS[product].lifetime && (
+              <p className="text-sm text-soft">
+                Keep the receipt email — your order ID is how you reopen lifetime access on a new device, or after clearing cookies.
+              </p>
+            )}
             {demo && (
               <p className="flex items-start gap-2 rounded-xl bg-pen-wash px-3 py-2.5 text-sm text-pen-dark">
                 <SparkleIcon className="mt-0.5 h-4 w-4 shrink-0" />
