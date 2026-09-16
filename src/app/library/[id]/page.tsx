@@ -51,9 +51,9 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
           </p>
           <dl className="mt-5 divide-y divide-edge rounded-2xl bg-wash px-4">
             {meta.map(([label, value]) => (
-              <div key={label} className="flex items-center justify-between py-2.5 text-sm">
-                <dt className="text-soft">{label}</dt>
-                <dd className="font-mono font-medium">{value}</dd>
+              <div key={label} className="flex items-center justify-between gap-4 py-2.5 text-sm">
+                <dt className="shrink-0 text-soft">{label}</dt>
+                <dd className="text-right font-mono font-medium">{value}</dd>
               </div>
             ))}
           </dl>
