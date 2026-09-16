@@ -8,6 +8,7 @@ import path from "node:path";
  *
  *   phrase-index.json    metadata: document counts by source, sizes, thresholds
  *   phrase-index.bin     sorted 48-bit phrase keys + doc counts (binary search)
+ *   wording-index.bin    same format, 3-word phrases (shared wording)
  *   phrase-text.json     key → normalised phrase, common phrases only (stats script)
  *   ingested-files.json  every corpus file counted, with source + content hash
  *   top-lines.json       most repeated whole lines (home page)
@@ -24,6 +25,7 @@ export const INDEX_DIR = path.join(process.cwd(), "data", "index");
 export const INDEX_FILES = {
   meta: path.join(INDEX_DIR, "phrase-index.json"),
   binary: path.join(INDEX_DIR, "phrase-index.bin"),
+  wording: path.join(INDEX_DIR, "wording-index.bin"),
   text: path.join(INDEX_DIR, "phrase-text.json"),
   ingested: path.join(INDEX_DIR, "ingested-files.json"),
   topLines: path.join(INDEX_DIR, "top-lines.json"),
@@ -33,6 +35,8 @@ export const OPEN_SOURCES_FILE = path.join(INDEX_DIR, "open-sources.json");
 
 /** Phrases seen in fewer documents than this are not stored. SCORING.MIN_DOC_COUNT must be ≥ this. */
 export const STORED_MIN_DOC_COUNT = 2;
+/** Same for 3-word phrases. SCORING.WORDING_MIN_DOC_COUNT must be ≥ this. */
+export const WORDING_STORED_MIN_DOC_COUNT = 3;
 /** Phrase text is kept only for phrases this common, so no rare fragment of one person's resume is written. */
 export const PHRASE_TEXT_MIN_DOCS = 25;
 
@@ -130,6 +134,8 @@ export type PhraseIndexMeta = {
   /** Phrases stored in the binary file (doc count ≥ storedMinDocCount). */
   storedPhrases: number;
   storedMinDocCount: number;
+  /** The 3-word phrase table (wording-index.bin). Absent in indexes built before it existed. */
+  wording?: { shingleSize: number; uniquePhrases: number; storedPhrases: number; storedMinDocCount: number };
 };
 
 export type PhraseTable = { keys: Float64Array; counts: Uint32Array };
@@ -164,12 +170,12 @@ export function readIndexMeta(shingleSize: number): PhraseIndexMeta {
   return meta.version === 2 ? (meta as PhraseIndexMeta) : emptyMeta(shingleSize);
 }
 
-/** Reads the binary table. The data is copied so typed-array views are correctly aligned. */
-export function readPhraseTable(): PhraseTable {
-  if (!existsSync(INDEX_FILES.binary)) return { keys: new Float64Array(0), counts: new Uint32Array(0) };
-  const file = readFileSync(INDEX_FILES.binary);
+/** Reads a binary table. The data is copied so typed-array views are correctly aligned. */
+export function readPhraseTable(filePath: string = INDEX_FILES.binary): PhraseTable {
+  if (!existsSync(filePath)) return { keys: new Float64Array(0), counts: new Uint32Array(0) };
+  const file = readFileSync(filePath);
   const header = new DataView(file.buffer, file.byteOffset, HEADER_BYTES);
-  if (header.getUint32(0, true) !== MAGIC) throw new Error("phrase-index.bin is not a Get Shortlisted index");
+  if (header.getUint32(0, true) !== MAGIC) throw new Error(`${path.basename(filePath)} is not a Get Shortlisted index`);
   const count = header.getUint32(8, true);
   const keysBytes = count * 8;
   const keys = new Float64Array(count);
@@ -193,8 +199,7 @@ export function lookupCount(table: PhraseTable, key: number): number {
   return 0;
 }
 
-export function writeIndexFiles(meta: PhraseIndexMeta, table: PhraseTable, text: Map<number, string>, ingested: IngestedFile[]) {
-  mkdirSync(INDEX_DIR, { recursive: true });
+function writePhraseTable(filePath: string, table: PhraseTable) {
   const count = table.keys.length;
   const buffer = Buffer.alloc(HEADER_BYTES + count * 12);
   buffer.writeUInt32LE(MAGIC, 0);
@@ -202,7 +207,19 @@ export function writeIndexFiles(meta: PhraseIndexMeta, table: PhraseTable, text:
   buffer.writeUInt32LE(count, 8);
   Buffer.from(table.keys.buffer, table.keys.byteOffset, count * 8).copy(buffer, HEADER_BYTES);
   Buffer.from(table.counts.buffer, table.counts.byteOffset, count * 4).copy(buffer, HEADER_BYTES + count * 8);
-  writeFileSync(INDEX_FILES.binary, buffer);
+  writeFileSync(filePath, buffer);
+}
+
+export function writeIndexFiles(
+  meta: PhraseIndexMeta,
+  table: PhraseTable,
+  wording: PhraseTable,
+  text: Map<number, string>,
+  ingested: IngestedFile[],
+) {
+  mkdirSync(INDEX_DIR, { recursive: true });
+  writePhraseTable(INDEX_FILES.binary, table);
+  writePhraseTable(INDEX_FILES.wording, wording);
   writeFileSync(INDEX_FILES.meta, JSON.stringify(meta, null, 2));
   writeFileSync(INDEX_FILES.text, JSON.stringify(Object.fromEntries([...text].map(([key, phrase]) => [phraseKeyHex(key), phrase]))));
   writeFileSync(INDEX_FILES.ingested, JSON.stringify(ingested));

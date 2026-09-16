@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { SCORING } from "@/config";
-import { displayLine, isListLine, normaliseLine, splitIntoLines, stripContactDetails } from "./text";
+import { displayLine, isListLine, isStopPhrase, normaliseLine, splitIntoLines, stripContactDetails } from "./text";
 
 export type AnalysedLine = {
   /** Original line (contact details removed) for display. */
@@ -9,6 +9,8 @@ export type AnalysedLine = {
   shingles: string[];
   /** sha1(shingle), same order as `shingles`. */
   hashes: string[];
+  /** sha1 of each 3-word phrase that has at least one non-stop word. */
+  wordingHashes: string[];
 };
 
 export type DocumentAnalysis = {
@@ -42,7 +44,8 @@ export function analyseDocument(rawText: string): DocumentAnalysis {
       continue;
     }
     const shingles = shingle(words);
-    lines.push({ text: displayLine(rawLine), normalised, shingles, hashes: shingles.map(sha1) });
+    const wording = shingle(words, SCORING.WORDING_SHINGLE_SIZE).filter((phrase) => !isStopPhrase(phrase));
+    lines.push({ text: displayLine(rawLine), normalised, shingles, hashes: shingles.map(sha1), wordingHashes: wording.map(sha1) });
   }
 
   return { lines, skippedLineCount };
@@ -60,4 +63,9 @@ export function documentPhrases(analysis: DocumentAnalysis): Map<string, string>
     });
   }
   return phrases;
+}
+
+/** Unique 3-word phrase hashes in a document, counted once per document like `documentPhrases`. */
+export function documentWording(analysis: DocumentAnalysis): Set<string> {
+  return new Set(analysis.lines.flatMap((line) => line.wordingHashes));
 }

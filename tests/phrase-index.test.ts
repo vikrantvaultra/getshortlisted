@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, test } from "node:test";
 import { SCORING } from "../src/config";
 import { analyseDocument, sha1 } from "../src/lib/scoring/analyse";
@@ -13,6 +13,10 @@ import {
   readPhraseTable,
   totalDocuments,
 } from "../src/lib/scoring/index-file";
+import { scoreDocument } from "../src/lib/scoring/score";
+import { lookupDocCounts, TWIN_SCORE_OPTIONS } from "../src/lib/server/phrase-index";
+import { HOLDOUT_RESUMES } from "./fixtures/holdout-resumes";
+import { INDIAN_RESUMES } from "./fixtures/indian-resumes";
 
 describe("phrase keys", () => {
   test("are the first 48 bits of the sha1 hex digest, exact as numbers", () => {
@@ -73,5 +77,35 @@ describe("committed index", { skip: !existsSync(INDEX_FILES.binary) && "index no
     const [unique] = analyseDocument("Mapped 212 dabbawala handoffs across four Dadar stations to find where lunches went missing.").lines;
     const rare = unique!.hashes.map((hash) => lookupCount(table, phraseKey(hash)));
     assert.ok(rare.filter((count) => count > 0).length <= 1, `expected almost no matches, got ${rare}`);
+  });
+
+  test("the wording table matches its metadata and threshold", () => {
+    const wording = readPhraseTable(INDEX_FILES.wording);
+    assert.ok(meta.wording, "phrase-index.json has no wording section — run `npm run corpus:ingest`");
+    assert.equal(meta.wording.shingleSize, SCORING.WORDING_SHINGLE_SIZE);
+    assert.equal(wording.keys.length, meta.wording.storedPhrases);
+    assert.ok(SCORING.WORDING_MIN_DOC_COUNT >= meta.wording.storedMinDocCount);
+    for (let i = 1; i < wording.keys.length; i += 997) assert.ok(wording.keys[i - 1]! < wording.keys[i]!);
+    for (let i = 0; i < wording.counts.length; i += 997) assert.ok(wording.counts[i]! >= meta.wording.storedMinDocCount);
+  });
+});
+
+describe("Twin Score against the committed index", { skip: !existsSync(INDEX_FILES.wording) && "index not built" }, () => {
+  test("every realistic resume gets at least one copied line and a non-zero already-seen share", () => {
+    const resumes = [
+      ...["fresher", "experienced", "nurse", "accountant"].map((name) => ({ name, text: readFileSync(`fixtures/${name}-resume.txt`, "utf8") })),
+      ...INDIAN_RESUMES,
+      ...HOLDOUT_RESUMES,
+    ];
+    for (const { name, text } of resumes) {
+      const result = scoreDocument(analyseDocument(text), lookupDocCounts, TWIN_SCORE_OPTIONS);
+      assert.ok(result.commonCount >= 1, `${name}: ${result.commonCount}/${result.totalCount}`);
+      assert.ok(result.percentage >= 1, `${name}: ${result.percentage}%`);
+    }
+  });
+
+  test("a template resume still reads as mostly copied", () => {
+    const result = scoreDocument(analyseDocument(readFileSync("fixtures/fresher-resume.txt", "utf8")), lookupDocCounts, TWIN_SCORE_OPTIONS);
+    assert.ok(result.commonCount / result.totalCount >= 0.5, `${result.commonCount}/${result.totalCount}`);
   });
 });

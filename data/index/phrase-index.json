@@ -1,7 +1,7 @@
 {
   "version": 2,
   "shingleSize": 5,
-  "updatedAt": "2026-09-15T19:14:05.448Z",
+  "updatedAt": "2026-09-16T17:03:01.749Z",
   "documents": {
     "seed": 46547,
     "openReal": 35038,
@@ -9,5 +9,11 @@
   },
   "uniquePhrases": 20723047,
   "storedPhrases": 3097247,
-  "storedMinDocCount": 2
+  "storedMinDocCount": 2,
+  "wording": {
+    "shingleSize": 3,
+    "uniquePhrases": 11677308,
+    "storedPhrases": 1465183,
+    "storedMinDocCount": 3
+  }
 }

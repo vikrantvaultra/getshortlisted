@@ -155,3 +155,66 @@ describe("scoreDocument", () => {
     assert.equal(result.percentage, 33);
   });
 });
+
+describe("scoreDocument with shared wording", () => {
+  const doc = analyseDocument(
+    [
+      "Monitored vital signs and administered medications to patients on the ward.",
+      "Mapped two hundred dabbawala handoffs across Dadar to find missing lunches.",
+      "Tuned forty seven pressure cookers for the Sunday langar queue.",
+    ].join("\n"),
+  );
+  const [reworded, original, other] = doc.lines;
+  const none = () => new Map<string, number>();
+  const wordingFrom = (seen: Set<string>) => (all: string[]) => new Map(all.map((h) => [h, seen.has(h) ? 3 : 0]));
+
+  test("3-word phrases skip stop-word-only phrases", () => {
+    const [line] = analyseDocument("worked in the office of the principal for two years").lines;
+    assert.equal(line!.wordingHashes.includes(sha1("of the principal")), true);
+    assert.equal(line!.wordingHashes.includes(sha1("in the office")), true);
+    assert.equal(analyseDocument("it is in the of the and to be at the").lines[0]!.wordingHashes.length, 0);
+  });
+
+  test("a line is copied when half its wording is seen, even with no 5-word match", () => {
+    const seen = new Set(reworded!.wordingHashes.slice(0, Math.ceil(reworded!.wordingHashes.length / 2)));
+    const result = scoreDocument(doc, none, { wordingLookup: wordingFrom(seen) });
+    assert.deepEqual(result.lines.map((line) => line.common), [true, false, false]);
+  });
+
+  test("wording seen in fewer than WORDING_MIN_DOC_COUNT documents doesn't count", () => {
+    const result = scoreDocument(doc, none, { wordingLookup: (all) => new Map(all.map((h) => [h, SCORING.WORDING_MIN_DOC_COUNT - 1])) });
+    assert.equal(result.commonCount, 0);
+    assert.equal(result.percentage, 0);
+  });
+
+  test("tops up to the minimum with the line that overlaps most", () => {
+    const seen = new Set([original!.wordingHashes[0]!, ...other!.wordingHashes.slice(0, 2)]);
+    const result = scoreDocument(doc, none, { wordingLookup: wordingFrom(seen), minCommonLines: 1 });
+    assert.deepEqual(result.lines.map((line) => line.common), [false, false, true]);
+    assert.equal(result.commonCount, 1);
+  });
+
+  test("never highlights a line that shares nothing, even to reach the minimum", () => {
+    const result = scoreDocument(doc, none, { wordingLookup: none, minCommonLines: 1 });
+    assert.equal(result.commonCount, 0);
+    assert.equal(result.percentage, 0);
+  });
+
+  test("percentage is the share of wording seen, and any overlap shows as at least 1%", () => {
+    const all = doc.lines.flatMap((line) => line.wordingHashes);
+    const half = scoreDocument(doc, none, { wordingLookup: wordingFrom(new Set(all.slice(0, Math.floor(all.length / 2)))) });
+    assert.equal(half.percentage, Math.floor((Math.floor(all.length / 2) / new Set(all).size) * 100));
+    const long = analyseDocument(Array.from({ length: 40 }, (_, i) => {
+      const w = (k: number) => `w${String.fromCharCode(97 + (i % 26), 97 + (Math.floor(i / 26) % 26), 97 + k)}`;
+      return [0, 1, 2, 3, 4].map(w).join(" ");
+    }).join("\n"));
+    const first = long.lines[0]!.wordingHashes[0]!;
+    const tiny = scoreDocument(long, none, { wordingLookup: wordingFrom(new Set([first])) });
+    assert.equal(tiny.percentage, 1); // 1 of 120 phrases rounds down to 0, but overlap exists
+  });
+
+  test("without a wording lookup, only exact phrases count (Compare)", () => {
+    const result = scoreDocument(doc, none, { minCommonLines: 1 });
+    assert.equal(result.commonCount, 0);
+  });
+});

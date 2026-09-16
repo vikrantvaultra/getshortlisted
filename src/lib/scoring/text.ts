@@ -82,6 +82,15 @@ export function normaliseLine(line: string): string {
     .trim();
 }
 
+const STOP_WORDS = new Set(
+  "a an the and or of in on at to for with by from as is are was were be been i my me we our you your it its this that these those into over under per up about # s".split(" "),
+);
+
+/** "in the #", "to be a": phrases every text shares, so they never count as shared wording. */
+export function isStopPhrase(normalisedPhrase: string): boolean {
+  return normalisedPhrase.split(" ").every((word) => STOP_WORDS.has(word));
+}
+
 /** "Python, Java, SQL, Git, Docker" or "React | Node | MongoDB | AWS" */
 export function isListLine(rawLine: string): boolean {
   if (!SCORING.DROP_LIST_LINES) return false;

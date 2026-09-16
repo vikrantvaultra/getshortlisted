@@ -5,6 +5,7 @@ import { SampleTag } from "@/components/sample-tag";
 import { COLLEGE_TIERS } from "@/config";
 import { anonymise } from "@/lib/anonymise";
 import { requireAdmin } from "@/lib/server/admin-auth";
+import { countIndexedPhrases } from "@/lib/server/phrase-index";
 import { store, type SubmissionStatus } from "@/lib/server/store";
 import { getSubmission } from "@/lib/server/submissions";
 import { approve, reject, remove } from "../../../actions";
@@ -72,7 +73,7 @@ export default async function ReviewPage({ params, searchParams }: Props) {
         <p className={`pop mt-5 flex items-start gap-2 rounded-2xl px-4 py-3 font-medium ${done === "approved" ? "bg-[#e3f6ea] text-[#0b6b35]" : "bg-wash text-soft"}`}>
           <CheckIcon className="mt-0.5 h-5 w-5 shrink-0" />
           {done === "approved"
-            ? `Approved. ${submission.consentCorpus ? `Indexed ${submission.indexedHashes?.length ?? 0} phrases. ` : "Not indexed (no consent). "}${
+            ? `Approved. ${submission.consentCorpus ? `Indexed ${countIndexedPhrases(submission.indexedHashes ?? [])} phrases. ` : "Not indexed (no consent). "}${
                 resume ? "Published to the library." : "Not published (no consent)."
               }`
             : "Rejected. Files and extracted text deleted."}

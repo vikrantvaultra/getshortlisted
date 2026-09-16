@@ -20,12 +20,13 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { SCORING } from "../src/config";
 import { extractCorpusFile } from "../src/lib/extract/extract";
-import { analyseDocument, documentPhrases, sha1 } from "../src/lib/scoring/analyse";
+import { analyseDocument, documentPhrases, documentWording, sha1 } from "../src/lib/scoring/analyse";
 import {
   INDEX_FILES,
   looksLikeHeading,
   PHRASE_TEXT_MIN_DOCS,
   STORED_MIN_DOC_COUNT,
+  WORDING_STORED_MIN_DOC_COUNT,
   phraseKey,
   phraseKeyHex,
   printSummary,
@@ -71,6 +72,10 @@ async function main() {
     console.error(`SCORING.MIN_DOC_COUNT (${SCORING.MIN_DOC_COUNT}) is below the stored threshold (${STORED_MIN_DOC_COUNT}).`);
     process.exit(1);
   }
+  if (SCORING.WORDING_MIN_DOC_COUNT < WORDING_STORED_MIN_DOC_COUNT) {
+    console.error(`SCORING.WORDING_MIN_DOC_COUNT (${SCORING.WORDING_MIN_DOC_COUNT}) is below the stored threshold (${WORDING_STORED_MIN_DOC_COUNT}).`);
+    process.exit(1);
+  }
   const corpusDir = path.resolve(argValue("--dir") ?? "corpus");
 
   const walk = (dir: string, prefix = ""): string[] =>
@@ -99,6 +104,7 @@ async function main() {
   const previous = new Set(readIngestedFiles().map((file) => file.contentHash));
   const phraseCounts = new ShardedCounter();
   const phraseText = new Map<number, string>();
+  const wordingCounts = new ShardedCounter();
   const lineCounts = new ShardedCounter();
   const lineText = new Map<number, string>();
   const seenContent = new Set<string>();
@@ -130,6 +136,8 @@ async function main() {
         if (phraseCounts.increment(key) === PHRASE_TEXT_MIN_DOCS) phraseText.set(key, phrase);
       }
 
+      for (const hash of documentWording(analysis)) wordingCounts.increment(phraseKey(hash));
+
       const lines = new Map(analysis.lines.map((line) => [line.normalised, line.text]));
       for (const [normalised, display] of lines) {
         const key = phraseKey(sha1(normalised));
@@ -153,16 +161,8 @@ async function main() {
     }
   }
 
-  // Keep only phrases that can ever count as "seen", sorted by key for binary search.
-  const stored: [number, number][] = [];
-  for (const entry of phraseCounts.entries()) if (entry[1] >= STORED_MIN_DOC_COUNT) stored.push(entry);
-  stored.sort((a, b) => a[0] - b[0]);
-  const keys = new Float64Array(stored.length);
-  const counts = new Uint32Array(stored.length);
-  stored.forEach(([key, count], i) => {
-    keys[i] = key;
-    counts[i] = count;
-  });
+  const { keys, counts } = storedTable(phraseCounts, STORED_MIN_DOC_COUNT);
+  const wording = storedTable(wordingCounts, WORDING_STORED_MIN_DOC_COUNT);
 
   const meta: PhraseIndexMeta = {
     version: 2,
@@ -170,10 +170,16 @@ async function main() {
     updatedAt: new Date().toISOString(),
     documents,
     uniquePhrases: phraseCounts.size,
-    storedPhrases: stored.length,
+    storedPhrases: keys.length,
     storedMinDocCount: STORED_MIN_DOC_COUNT,
+    wording: {
+      shingleSize: SCORING.WORDING_SHINGLE_SIZE,
+      uniquePhrases: wordingCounts.size,
+      storedPhrases: wording.keys.length,
+      storedMinDocCount: WORDING_STORED_MIN_DOC_COUNT,
+    },
   };
-  writeIndexFiles(meta, { keys, counts }, phraseText, ingested);
+  writeIndexFiles(meta, { keys, counts }, wording, phraseText, ingested);
 
   const commonLines: [number, number][] = [];
   for (const [key, count] of lineCounts.entries()) {
@@ -193,7 +199,22 @@ async function main() {
   if (failed) console.log(`  Failed                    ${failed}`);
   const text = Object.fromEntries([...phraseText].map(([key, phrase]) => [phraseKeyHex(key), phrase]));
   printSummary(summariseIndex(meta, { keys, counts }, text));
-  console.log(`  Wrote ${path.relative(process.cwd(), INDEX_FILES.binary)} (${((12 * stored.length) / 1e6).toFixed(1)} MB)`);
+  console.log(`  Wrote ${path.relative(process.cwd(), INDEX_FILES.binary)} (${((12 * keys.length) / 1e6).toFixed(1)} MB)`);
+  console.log(`  Wrote ${path.relative(process.cwd(), INDEX_FILES.wording)} (${((12 * wording.keys.length) / 1e6).toFixed(1)} MB)`);
+}
+
+/** Keeps only phrases that can ever count as "seen", sorted by key for binary search. */
+function storedTable(counter: ShardedCounter, minDocCount: number) {
+  const stored: [number, number][] = [];
+  for (const entry of counter.entries()) if (entry[1] >= minDocCount) stored.push(entry);
+  stored.sort((a, b) => a[0] - b[0]);
+  const keys = new Float64Array(stored.length);
+  const counts = new Uint32Array(stored.length);
+  stored.forEach(([key, count], i) => {
+    keys[i] = key;
+    counts[i] = count;
+  });
+  return { keys, counts };
 }
 
 main();

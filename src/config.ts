@@ -15,6 +15,24 @@ export const SCORING = {
   /** A line is "common" when at least this share of its shingles are "seen". */
   COMMON_LINE_RATIO: 0.6,
   /**
+   * Exact 5-word matches alone miss most real resumes: people reword stock
+   * lines just enough ("Monitor vital signs, administer medications…"). So
+   * lines are also checked for shared wording — 3-word phrases, ignoring ones
+   * made only of stop words. Changing the size or the stored threshold needs
+   * `npm run corpus:ingest`.
+   */
+  WORDING_SHINGLE_SIZE: 3,
+  /** A 3-word phrase counts as "seen" when at least this many distinct documents contain it. */
+  WORDING_MIN_DOC_COUNT: 3,
+  /** A line is also "copied" when at least this share of its 3-word phrases are "seen". */
+  WORDING_LINE_RATIO: 0.5,
+  /**
+   * A scan always highlights at least this many lines: the ones whose wording
+   * overlaps other resumes the most. Only lines with some real overlap qualify,
+   * so a resume that shares nothing with the index can still score 0.
+   */
+  MIN_COPIED_LINES: 1,
+  /**
    * Comma/pipe-separated lists ("Python, Java, SQL, Git, Docker") are not
    * sentences. Scoring them would inflate the result with skill lists, so
    * they are dropped the same way short lines are.

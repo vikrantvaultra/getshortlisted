@@ -3,7 +3,7 @@ import { extractResumeUpload, UploadError } from "@/lib/extract/extract";
 import { analyseDocument } from "@/lib/scoring/analyse";
 import { scoreDocument } from "@/lib/scoring/score";
 import { detectDomain, type DomainMatch } from "@/lib/server/domains";
-import { indexStats, lookupDocCounts } from "@/lib/server/phrase-index";
+import { indexStats, lookupDocCounts, TWIN_SCORE_OPTIONS } from "@/lib/server/phrase-index";
 import { jsonError, rateLimit } from "@/lib/server/request";
 import { randomId, signPayload } from "@/lib/server/crypto";
 import { store } from "@/lib/server/store";
@@ -15,8 +15,10 @@ export type ScoreResponse = {
   scanId: string;
   commonCount: number;
   totalCount: number;
+  /** Share of the resume's wording (3-word phrases) already seen in other resumes. */
   percentage: number;
-  lines: { text: string; common: boolean; seenIn: number }[];
+  /** `wordingSeen`: share of the line's 3-word phrases seen elsewhere, 0–100. */
+  lines: { text: string; common: boolean; seenIn: number; wordingSeen: number }[];
   index: ReturnType<typeof indexStats>;
   /** The job domain this resume reads like, so Compare and the Library can open on it. Not stored. */
   match: DomainMatch | null;
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
   try {
     const extracted = await extractResumeUpload(new Uint8Array(await file.arrayBuffer()));
     const analysis = analyseDocument(extracted.text);
-    const result = scoreDocument(analysis, lookupDocCounts);
+    const result = scoreDocument(analysis, lookupDocCounts, TWIN_SCORE_OPTIONS);
 
     if (result.totalCount === 0) {
       return jsonError(
@@ -73,7 +75,12 @@ export async function POST(request: NextRequest) {
       commonCount: result.commonCount,
       totalCount: result.totalCount,
       percentage: result.percentage,
-      lines: result.lines.map(({ text, common, peakDocCount }) => ({ text, common, seenIn: peakDocCount })),
+      lines: result.lines.map(({ text, common, peakDocCount, wordingRatio }) => ({
+        text,
+        common,
+        seenIn: peakDocCount,
+        wordingSeen: Math.round(wordingRatio * 100),
+      })),
       index: indexStats(),
       match: detectDomain(extracted.text),
       shareToken: signPayload({ s: scanId, c: result.commonCount, t: result.totalCount }),

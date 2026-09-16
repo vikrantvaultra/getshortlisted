@@ -143,9 +143,11 @@ export function Result({ result, paidEnabled, domains, onReset }: Props) {
                   {open && (
                     <p className={`fade mb-2 ml-7 rounded-xl px-3 py-2 text-sm ${line.common ? "bg-marker-soft text-marker-ink" : "bg-pen-wash text-pen"}`}>
                       {line.common
-                        ? `Phrases from this line appear in up to ${n(line.seenIn)} of ${n(result.index.totalDocuments)} resumes.`
-                        : line.seenIn >= 2
-                          ? `A few phrases have been seen before, but most of this line is yours.`
+                        ? line.seenIn >= 2
+                          ? `Phrases from this line appear in up to ${n(line.seenIn)} of ${n(result.index.totalDocuments)} resumes.`
+                          : `${line.wordingSeen}% of this line's wording already appears in other resumes.`
+                        : line.seenIn >= 2 || line.wordingSeen > 0
+                          ? `Some of this wording has been seen before, but most of this line is yours.`
                           : "We haven't seen this phrasing in other resumes."}
                     </p>
                   )}

@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { analyseDocument } from "@/lib/scoring/analyse";
 import { scoreDocument } from "@/lib/scoring/score";
-import { indexStats, lookupDocCounts } from "@/lib/server/phrase-index";
+import { indexStats, lookupDocCounts, lookupWordingCounts } from "@/lib/server/phrase-index";
 import { jsonError, rateLimit } from "@/lib/server/request";
 
 export const runtime = "nodejs";
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   const line = merged.lines[0];
   if (!line) return NextResponse.json({ status: "too-short" } satisfies LineCheckResponse);
 
-  const [verdict] = scoreDocument({ lines: [line], skippedLineCount: 0 }, lookupDocCounts).lines;
+  const [verdict] = scoreDocument({ lines: [line], skippedLineCount: 0 }, lookupDocCounts, { wordingLookup: lookupWordingCounts }).lines;
   const counts = lookupDocCounts(line.hashes);
   return NextResponse.json({
     status: "checked",
