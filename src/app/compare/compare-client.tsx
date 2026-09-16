@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CompareColumn, CompareRanges, CompareResponse } from "@/app/api/compare/route";
 import { FileField } from "@/components/file-picker";
-import { AlertIcon, ArrowRightIcon, LockIcon, ShieldIcon, SparkleIcon } from "@/components/icons";
+import { AlertIcon, ArrowRightIcon, CheckIcon, FileIcon, LockIcon, ShieldIcon, SparkleIcon } from "@/components/icons";
 import { PayPanel } from "@/components/pay-panel";
 import { ResumeText } from "@/components/resume-text";
 import { OriginTag } from "@/components/sample-tag";
 import { COMPARE, type Level } from "@/config";
 import { AUTO_DOMAIN, FIELDS, fieldLabel, rememberDomain, type DomainOption, type FieldId } from "@/lib/fields";
+import { scannedResume } from "@/lib/scanned-resume";
 
 const ordinal = (n: number) => `${n}${["th", "st", "nd", "rd"][n % 100 > 10 && n % 100 < 14 ? 0 : n % 10] ?? "th"}`;
 
@@ -128,7 +129,11 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
   const [domain, setDomain] = useState(initialDomain);
   const [company, setCompany] = useState("");
   const [level, setLevel] = useState<Level | "">("");
-  const [file, setFile] = useState<File | null>(null);
+  // The resume scanned on the home page, when the visitor came straight from it.
+  const [carried] = useState(scannedResume);
+  const [file, setFile] = useState<File | null>(carried);
+  // With the resume already in hand there's nothing to fill in, so the form stays folded away.
+  const [editing, setEditing] = useState(!carried);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<CompareResponse | null>(null);
@@ -156,7 +161,10 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
     try {
       const response = await fetch("/api/compare", { method: "POST", body: form });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) setError(data.error ?? "Something went wrong.");
+      if (!response.ok) {
+        setError(data.error ?? "Something went wrong.");
+        setEditing(true);
+      }
       else {
         const next = data as CompareResponse;
         setResult(next);
@@ -166,10 +174,19 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
       }
     } catch {
       setError("Couldn't reach the server.");
+      setEditing(true);
     } finally {
       setBusy(false);
     }
   }
+
+  // Came from the scan: start straight away. The ref keeps dev's double effect from uploading twice.
+  const started = useRef(false);
+  useEffect(() => {
+    if (!carried || started.current) return;
+    started.current = true;
+    void compare();
+  }, []);
 
   function run(event: React.FormEvent) {
     event.preventDefault();
@@ -194,104 +211,134 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
           the typical range for that role across our open datasets. Everything is counted, nothing is guessed, and there&apos;s no AI commentary.
         </p>
       </div>
-      <ol className="mt-6 grid gap-3 sm:grid-cols-3">
-        {steps(domains.length).map(([title, detail], i) => (
-          <li key={title} className="flex gap-3 rounded-2xl bg-wash p-4">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pen font-mono text-sm font-medium text-white">{i + 1}</span>
-            <span>
-              <span className="block font-semibold">{title}</span>
-              <span className="mt-0.5 block text-sm text-soft">{detail}</span>
-            </span>
-          </li>
-        ))}
-      </ol>
+      {!carried && (
+        <ol className="mt-6 grid gap-3 sm:grid-cols-3">
+          {steps(domains.length).map(([title, detail], i) => (
+            <li key={title} className="flex gap-3 rounded-2xl bg-wash p-4">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pen font-mono text-sm font-medium text-white">{i + 1}</span>
+              <span>
+                <span className="block font-semibold">{title}</span>
+                <span className="mt-0.5 block text-sm text-soft">{detail}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
 
-      <form onSubmit={run} className="panel mt-7 overflow-hidden">
-        {fromScan && chosen && domain === initialDomain && (
-          <p className="flex items-center gap-2 border-b border-edge bg-pen-wash px-4 py-2.5 text-sm text-pen sm:px-6">
-            <SparkleIcon className="h-4 w-4 shrink-0" />
-            <span>
-              Set to <strong className="font-semibold">{chosen.label}</strong> from your resume scan. Change it if that&apos;s not your role.
+      {!editing && file && (
+        <div className="panel mt-7 flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:px-6">
+          <span className="flex min-w-0 flex-1 items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-pen-wash text-pen">
+              <FileIcon />
             </span>
-          </p>
-        )}
-        <div className={`grid gap-4 p-4 sm:p-6 md:grid-cols-2 ${showCompanies ? "lg:grid-cols-[1.2fr_1fr_0.8fr_1.35fr]" : "lg:grid-cols-[1.2fr_0.8fr_1.35fr]"}`}>
-          <div>
-            <label htmlFor="domain" className="field-label">
-              Your role
-            </label>
-            <select id="domain" className="input" value={domain} onChange={(e) => chooseDomain(e.target.value)} disabled={busy}>
-              <option value={AUTO_DOMAIN}>Match it from my resume</option>
-              {FIELDS.map((group) => (
-                <optgroup key={group.id} label={group.label}>
-                  {domains
-                    .filter((option) => option.field === group.id)
-                    .map((option) => (
-                      <option key={option.slug} value={option.slug}>
-                        {option.label}
-                      </option>
-                    ))}
-                </optgroup>
-              ))}
-            </select>
-          </div>
-          {showCompanies && (
+            <span className="min-w-0 leading-tight">
+              <span className="block truncate font-semibold" title={file.name}>
+                {file.name}
+              </span>
+              <span className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-soft">
+                <CheckIcon className="h-3.5 w-3.5 text-good" /> From your scan
+                <span aria-hidden>·</span>
+                {chosen ? chosen.label : "role matched from your resume"}
+                {company && ` · ${company}`}
+                <span aria-hidden>·</span>
+                {level === "fresher" ? "freshers" : level === "experienced" ? "experienced" : "any level"}
+              </span>
+            </span>
+          </span>
+          <button type="button" className="btn btn-outline min-h-11 shrink-0 px-4 text-sm" onClick={() => setEditing(true)} disabled={busy}>
+            Change role or resume
+          </button>
+        </div>
+      )}
+
+      {editing && (
+        <form onSubmit={run} className="panel mt-7 overflow-hidden">
+          {fromScan && chosen && domain === initialDomain && (
+            <p className="flex items-center gap-2 border-b border-edge bg-pen-wash px-4 py-2.5 text-sm text-pen sm:px-6">
+              <SparkleIcon className="h-4 w-4 shrink-0" />
+              <span>
+                Set to <strong className="font-semibold">{chosen.label}</strong> from your resume scan. Change it if that&apos;s not your role.
+              </span>
+            </p>
+          )}
+          <div className={`grid gap-4 p-4 sm:p-6 md:grid-cols-2 ${showCompanies ? "lg:grid-cols-[1.2fr_1fr_0.8fr_1.35fr]" : "lg:grid-cols-[1.2fr_0.8fr_1.35fr]"}`}>
             <div>
-              <label htmlFor="company" className="field-label">
-                Target company <span className="font-normal text-faint">(optional)</span>
+              <label htmlFor="domain" className="field-label">
+                Your role
               </label>
-              <select id="company" className="input" value={company} onChange={(e) => setCompany(e.target.value)} disabled={busy}>
-                <option value="">Any employer</option>
-                {companies.map((c) => (
-                  <option key={c}>{c}</option>
+              <select id="domain" className="input" value={domain} onChange={(e) => chooseDomain(e.target.value)} disabled={busy}>
+                <option value={AUTO_DOMAIN}>Match it from my resume</option>
+                {FIELDS.map((group) => (
+                  <optgroup key={group.id} label={group.label}>
+                    {domains
+                      .filter((option) => option.field === group.id)
+                      .map((option) => (
+                        <option key={option.slug} value={option.slug}>
+                          {option.label}
+                        </option>
+                      ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
-          )}
-          <div>
-            <label htmlFor="level" className="field-label">
-              Compare with
-            </label>
-            <select id="level" className="input" value={level} onChange={(e) => setLevel(e.target.value as Level | "")} disabled={busy}>
-              <option value="">Any level</option>
-              <option value="fresher">Freshers</option>
-              <option value="experienced">Experienced</option>
-            </select>
-          </div>
-          <div className="md:col-span-2 lg:col-span-1">
-            <FileField
-              label="Your resume"
-              placeholder="Choose your resume"
-              hint="PDF or Word, up to 5 MB"
-              accept=".pdf,.docx"
-              file={file}
-              onChange={setFile}
-              disabled={busy}
-            />
-          </div>
-        </div>
-        {chosen && chosen.borrowedFrom && !company && (
-          <p className="border-t border-edge px-4 py-2.5 text-sm text-soft sm:px-6">
-            We don&apos;t have five readable {chosen.label} resumes yet, so the side-by-side uses the closest role ({chosen.borrowedFrom}).
-            {chosen.total >= 20 && ` The typical ranges are still counted across ${chosen.total.toLocaleString("en-IN")} ${chosen.label} resumes.`}
-          </p>
-        )}
-        <div className="flex flex-col gap-3 border-t border-edge bg-wash px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p className="flex items-center gap-2 text-sm text-soft">
-            <ShieldIcon className="h-4 w-4 shrink-0" />
-            Read in memory to count, never stored.
-          </p>
-          <button type="submit" className="btn w-full sm:w-auto" disabled={!file || busy}>
-            {busy ? (
-              "Counting…"
-            ) : (
-              <>
-                Compare with {COMPARE.SET_SIZE} {targetName} resumes <ArrowRightIcon className="h-4 w-4" />
-              </>
+            {showCompanies && (
+              <div>
+                <label htmlFor="company" className="field-label">
+                  Target company <span className="font-normal text-faint">(optional)</span>
+                </label>
+                <select id="company" className="input" value={company} onChange={(e) => setCompany(e.target.value)} disabled={busy}>
+                  <option value="">Any employer</option>
+                  {companies.map((c) => (
+                    <option key={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
             )}
-          </button>
-        </div>
-      </form>
+            <div>
+              <label htmlFor="level" className="field-label">
+                Compare with
+              </label>
+              <select id="level" className="input" value={level} onChange={(e) => setLevel(e.target.value as Level | "")} disabled={busy}>
+                <option value="">Any level</option>
+                <option value="fresher">Freshers</option>
+                <option value="experienced">Experienced</option>
+              </select>
+            </div>
+            <div className="md:col-span-2 lg:col-span-1">
+              <FileField
+                label="Your resume"
+                placeholder="Choose your resume"
+                hint="PDF or Word, up to 5 MB"
+                accept=".pdf,.docx"
+                file={file}
+                onChange={setFile}
+                disabled={busy}
+              />
+            </div>
+          </div>
+          {chosen && chosen.borrowedFrom && !company && (
+            <p className="border-t border-edge px-4 py-2.5 text-sm text-soft sm:px-6">
+              We don&apos;t have five readable {chosen.label} resumes yet, so the side-by-side uses the closest role ({chosen.borrowedFrom}).
+              {chosen.total >= 20 && ` The typical ranges are still counted across ${chosen.total.toLocaleString("en-IN")} ${chosen.label} resumes.`}
+            </p>
+          )}
+          <div className="flex flex-col gap-3 border-t border-edge bg-wash px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <p className="flex items-center gap-2 text-sm text-soft">
+              <ShieldIcon className="h-4 w-4 shrink-0" />
+              Read in memory to count, never stored.
+            </p>
+            <button type="submit" className="btn w-full sm:w-auto" disabled={!file || busy}>
+              {busy ? (
+                "Counting…"
+              ) : (
+                <>
+                  Compare with {COMPARE.SET_SIZE} {targetName} resumes <ArrowRightIcon className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      )}
       {error && (
         <p role="alert" className="mt-4 flex items-start gap-2 rounded-2xl bg-[#fdecec] p-4 font-medium text-warn">
           <AlertIcon className="mt-0.5 h-5 w-5 shrink-0" />
@@ -299,16 +346,7 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
         </p>
       )}
 
-      {busy && (
-        <div className="panel mt-8 flex items-center gap-4 p-5" role="status">
-          <div className="relative h-14 w-11 shrink-0 overflow-hidden rounded-lg border border-edge bg-sheet">
-            <span className="scan-beam absolute inset-x-0 top-0 h-1 bg-pen" style={{ ["--scan-distance" as string]: "52px" }} />
-          </div>
-          <p className="font-semibold">
-            Counting your resume against five {targetName} resumes<span className="blink">…</span>
-          </p>
-        </div>
-      )}
+      {busy && <Comparing targetName={targetName} />}
 
       {result && !busy && <TargetNote result={result} />}
 
@@ -430,6 +468,68 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
           </section>
         </>
       )}
+    </div>
+  );
+}
+
+/** Shown while the comparison runs. The steps are what the server does. */
+function Comparing({ targetName }: { targetName: string }) {
+  const steps = [
+    "Reading your resume",
+    `Picking ${COMPARE.SET_SIZE} ${targetName} resumes`,
+    "Counting pages, sections and bullets",
+    "Checking which phrases you share",
+  ];
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setStep((current) => Math.min(current + 1, steps.length - 1)), 650);
+    return () => clearInterval(timer);
+  }, [steps.length]);
+
+  return (
+    <div className="panel rise mt-8 grid items-center gap-6 p-5 sm:grid-cols-[auto_1fr] sm:p-7" role="status" aria-live="polite">
+      <div aria-hidden className="flex items-end justify-center gap-1.5">
+        <span className="relative flex h-24 w-[4.5rem] flex-col gap-1.5 overflow-hidden rounded-xl border border-edge bg-sheet p-2.5 ring-2 ring-pen">
+          {[80, 100, 65, 90, 75, 100, 55].map((width, i) => (
+            <span key={i} className={`h-1.5 rounded-full transition-colors duration-500 ${i % 3 === 1 && step >= 3 ? "bg-marker" : "bg-edge"}`} style={{ width: `${width}%` }} />
+          ))}
+          <span className="scan-beam absolute inset-x-0 top-0 h-0.5 bg-pen shadow-[0_0_10px_#2b54ff]" style={{ ["--scan-distance" as string]: "92px" }} />
+        </span>
+        {Array.from({ length: COMPARE.SET_SIZE }, (_, i) => (
+          <span
+            key={i}
+            className={`flex h-16 w-8 flex-col gap-1 rounded-md border border-edge bg-white p-1.5 transition-[opacity,transform] duration-500 ${
+              step >= 1 ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+            }`}
+            style={{ transitionDelay: `${i * 90}ms` }}
+          >
+            <span className="h-0.5 w-3/4 rounded-full bg-pen/50" />
+            <span className="h-0.5 rounded-full bg-edge-strong" />
+            <span className="h-0.5 w-5/6 rounded-full bg-edge-strong" />
+            <span className="h-0.5 rounded-full bg-edge-strong" />
+          </span>
+        ))}
+      </div>
+      <div>
+        <p className="font-display text-2xl leading-tight font-extrabold">
+          Comparing your resume<span className="blink">…</span>
+        </p>
+        <ol className="mt-3 space-y-2">
+          {steps.map((label, i) => (
+            <li key={label} className={`flex items-center gap-2.5 text-[0.95rem] transition-opacity ${i <= step ? "opacity-100" : "opacity-35"}`}>
+              <span
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                  i < step ? "bg-good text-white" : i === step ? "bg-pen-wash text-pen" : "bg-wash text-faint"
+                }`}
+              >
+                {i < step ? <CheckIcon className="h-3 w-3" /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
+              </span>
+              <span className={i === step ? "font-semibold" : ""}>{label}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
     </div>
   );
 }

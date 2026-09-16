@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { ScoreResponse } from "@/app/api/score/route";
 import { AlertIcon, ArrowRightIcon, HighlighterIcon, ShareIcon, ShieldIcon, UploadIcon } from "@/components/icons";
 import type { DomainOption } from "@/lib/fields";
+import { holdScannedResume } from "@/lib/scanned-resume";
 import type { TopLinesFile } from "@/lib/scoring/index-file";
 import { HeroSheet } from "./hero-sheet";
 import { LineTester } from "./line-tester";
@@ -44,6 +45,7 @@ export function Home({ indexSize, demo, topLines, exampleLines, paidEnabled, dom
       // Let the scan animation finish one pass so the result doesn't flash in.
       await new Promise((resolve) => setTimeout(resolve, Math.max(0, 1600 - (Date.now() - started))));
       if (!response.ok) return setState({ phase: "idle", error: data.error ?? "Something went wrong. Please try again." });
+      holdScannedResume(file);
       setState({ phase: "result", result: data as ScoreResponse });
       window.scrollTo({ top: 0 });
     } catch {
@@ -59,6 +61,7 @@ export function Home({ indexSize, demo, topLines, exampleLines, paidEnabled, dom
         paidEnabled={paidEnabled}
         domains={domains}
         onReset={() => {
+          holdScannedResume(null);
           setState({ phase: "idle", error: null });
           window.scrollTo({ top: 0 });
         }}

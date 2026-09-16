@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ScoreResponse } from "@/app/api/score/route";
 import { CountUp } from "@/components/count-up";
-import { ArrowRightIcon, HighlighterIcon, RefreshIcon, ShareIcon, ShieldIcon, SparkleIcon } from "@/components/icons";
+import { ArrowRightIcon, CheckIcon, HighlighterIcon, RefreshIcon, ShareIcon, ShieldIcon, SparkleIcon } from "@/components/icons";
 import { indexSentence } from "@/components/index-statement";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { COMPARE, PRODUCTS } from "@/config";
@@ -170,24 +170,22 @@ export function Result({ result, paidEnabled, domains, onReset }: Props) {
       {/* ── What next ───────────────────────────────────────────────────── */}
       <section className="mx-auto mt-12 max-w-3xl px-4">
         <div className="panel overflow-hidden">
-          <div className="grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:p-8">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-marker text-text shadow-[0_3px_0_#d9b800]">
-              <SparkleIcon className="h-7 w-7" />
-            </span>
-            <div>
-              <h2 className="text-2xl leading-tight font-extrabold">See how resumes for your role are written</h2>
-              {paidEnabled ? (
-                <NextSteps domains={domains} domain={domain} onDomain={setDomain} matched={result.match?.slug ?? null} />
-              ) : (
-                <>
-                  <p className="mt-2 text-soft">We&apos;re collecting real ones from people who got placed. Get one email when it opens.</p>
-                  <div className="mt-5">
-                    <WaitlistForm source="twin-score" />
-                  </div>
-                </>
-              )}
+          {paidEnabled ? (
+            <NextSteps domains={domains} domain={domain} onDomain={setDomain} matched={result.match?.slug ?? null} />
+          ) : (
+            <div className="grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:p-8">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-marker text-text shadow-[0_3px_0_#d9b800]">
+                <SparkleIcon className="h-7 w-7" />
+              </span>
+              <div>
+                <h2 className="text-2xl leading-tight font-extrabold">See how resumes for your role are written</h2>
+                <p className="mt-2 text-soft">We&apos;re collecting real ones from people who got placed. Get one email when it opens.</p>
+                <div className="mt-5">
+                  <WaitlistForm source="twin-score" />
+                </div>
+              </div>
             </div>
-          </div>
+          )}
           <Link href="/submit" className="flex items-center justify-between gap-4 border-t border-edge bg-wash px-6 py-4 text-sm font-semibold sm:px-8">
             Already got an offer? Share the resume that did it.
             <ArrowRightIcon className="h-4 w-4 shrink-0" />
@@ -200,6 +198,13 @@ export function Result({ result, paidEnabled, domains, onReset }: Props) {
   );
 }
 
+/** What Compare counts, asked as the questions a job seeker actually has. */
+const QUESTIONS = [
+  { tag: "Length", text: "Is yours longer or shorter than theirs?" },
+  { tag: "Bullets", text: "More bullet points, or fewer?" },
+  { tag: "Sections", text: "Are your sections in the usual order?" },
+];
+
 function NextSteps({
   domains,
   domain,
@@ -211,45 +216,55 @@ function NextSteps({
   onDomain: (slug: string) => void;
   matched: string | null;
 }) {
+  // The card that was tapped, while its page loads.
+  const [opening, setOpening] = useState<"compare" | "library" | null>(null);
   const chosen = domains.find((option) => option.slug === domain);
-  const features = [
-    {
-      href: chosen ? `/compare?domain=${chosen.slug}` : "/compare",
-      title: "Compare my resume",
-      detail: chosen
-        ? `See yours next to ${COMPARE.SET_SIZE} ${chosen.label} resumes${
-            chosen.total >= 20 ? `, and against the typical ${chosen.label} resume across ${n(chosen.total)} of them` : ""
-          }: pages, sections, bullets and shared phrasing.`
-        : `See yours next to ${COMPARE.SET_SIZE} resumes for your role: pages, sections, bullets and shared phrasing.`,
-      cta: "Start comparing",
-      primary: true,
-    },
-    {
-      href: chosen ? `/library?domain=${chosen.slug}` : "/library",
-      title: chosen ? `Browse ${chosen.label} resumes` : "Browse the library",
-      detail: chosen
-        ? chosen.readable >= COMPARE.SET_SIZE
-          ? `Read ${chosen.readable} ${chosen.label} resumes in full, then explore the rest of ${fieldLabel(chosen.field)}.`
-          : `Read ${chosen.readable ? `${chosen.readable} ${chosen.label} ${chosen.readable === 1 ? "resume" : "resumes"}` : `${chosen.label} examples`}${
-              chosen.borrowedFrom ? ` alongside the closest role, ${chosen.borrowedFrom}` : ""
-            }, and the rest of ${fieldLabel(chosen.field)}.`
-        : `Read example resumes for ${domains.length} roles, from teaching and nursing to sales and software.`,
-      cta: "Start browsing",
-      primary: false,
-    },
-  ];
+  const role = chosen?.label;
+
+  const open = (which: "compare" | "library") => (event: React.MouseEvent) => {
+    // A new-tab click leaves this page as it is.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    setOpening(which);
+  };
+
+  const browseDetail = chosen
+    ? chosen.readable >= COMPARE.SET_SIZE
+      ? `Read ${chosen.readable} ${chosen.label} resumes from top to bottom, then the rest of ${fieldLabel(chosen.field)}.`
+      : `Read ${chosen.readable ? `${chosen.readable} ${chosen.label}` : chosen.label} ${chosen.readable === 1 ? "resume" : "resumes"}${
+          chosen.borrowedFrom ? ` plus ${chosen.borrowedFrom} ones` : ""
+        }, and the rest of ${fieldLabel(chosen.field)}.`
+    : `Read example resumes for ${domains.length} roles, from teaching and nursing to sales and software.`;
 
   return (
-    <>
-      <div className="mt-3 rounded-2xl bg-wash p-3">
-        <label htmlFor="result-domain" className="text-sm text-soft">
-          {domain && domain === matched ? "Your resume reads like" : "Your role"}
+    <div className="p-5 sm:p-8">
+      <span className="sticker -rotate-1">
+        <SparkleIcon className="h-4 w-4" /> Next step · free to try
+      </span>
+      <h2 className="mt-4 text-[1.75rem] leading-[1.1] font-extrabold sm:text-4xl">
+        How does your resume stack up against other{" "}
+        {role ? <span className="marker">{role}</span> : <span className="marker">people in your role</span>}
+        {role ? " resumes" : ""}?
+      </h2>
+
+      <ul className="mt-5 grid gap-2 sm:grid-cols-3">
+        {QUESTIONS.map((question, i) => (
+          <li key={question.tag} className="rise rounded-2xl bg-wash px-4 py-3" style={{ ["--delay" as string]: `${i * 80}ms` }}>
+            <span className="font-mono text-[0.68rem] tracking-wider text-pen uppercase">{question.tag}</span>
+            <span className="mt-0.5 block text-[0.95rem] leading-snug font-semibold">{question.text}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-5 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+        <label htmlFor="result-domain" className="shrink-0 text-sm font-semibold">
+          {domain && domain === matched ? "Your role (matched from your resume)" : "Your role"}
         </label>
         <select
           id="result-domain"
-          className={`input mt-1.5 font-semibold ${domain ? "border-pen bg-pen-wash" : ""}`}
+          className="input min-h-11 py-2 font-semibold sm:flex-1"
           value={domain}
           onChange={(event) => onDomain(event.target.value)}
+          disabled={opening !== null}
         >
           {!domain && <option value="">Pick your role</option>}
           {FIELDS.map((group) => (
@@ -264,33 +279,138 @@ function NextSteps({
             </optgroup>
           ))}
         </select>
-        <p className="mt-1.5 text-xs text-faint">
-          {domain && domain === matched
-            ? "Matched by counting the words in your resume. Not right? Pick yours — both options below follow it."
-            : "Both options below follow this choice."}
-        </p>
       </div>
-      <p className="mt-4 text-soft">Try either one first; you only pay when you want to see the full results.</p>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        {features.map((feature) => (
-          <Link
-            key={feature.title}
-            href={feature.href}
-            className={`group flex flex-col rounded-2xl p-4 ring-1 transition-transform hover:-translate-y-0.5 ${feature.primary ? "bg-pen-wash ring-pen/30" : "bg-white ring-edge"}`}
-          >
-            <span className="font-display text-lg leading-tight font-extrabold">{feature.title}</span>
-            <span className="mt-1.5 flex-1 text-sm text-soft">{feature.detail}</span>
-            <span className={`mt-4 flex items-center gap-1.5 text-sm font-semibold ${feature.primary ? "text-pen" : "text-text"}`}>
-              {feature.cta} <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </span>
-          </Link>
-        ))}
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-[1.2fr_1fr]">
+        {/* Compare: the main path. */}
+        <Link
+          href={chosen ? `/compare?domain=${chosen.slug}` : "/compare"}
+          onClick={open("compare")}
+          aria-busy={opening === "compare"}
+          className={`group relative flex flex-col overflow-hidden rounded-3xl bg-pen p-5 text-white shadow-[0_14px_30px_-14px_rgba(43,84,255,0.7)] transition-[transform,opacity] hover:-translate-y-0.5 ${
+            opening === "library" ? "pointer-events-none opacity-40" : ""
+          } ${opening === "compare" ? "pointer-events-none" : ""}`}
+        >
+          <CompareArt />
+          <span className="mt-4 font-display text-2xl leading-tight font-extrabold">Compare my resume</span>
+          <span className="mt-1.5 flex-1 text-[0.95rem] text-white/85">
+            {role ? `Yours, side by side with ${COMPARE.SET_SIZE} ${role} resumes` : `Yours, side by side with ${COMPARE.SET_SIZE} resumes for your role`}
+            {chosen && chosen.total >= 20 ? ` — and against the typical range across ${n(chosen.total)} of them.` : "."}
+          </span>
+          <span className="mt-3 flex items-center gap-1.5 text-sm font-medium text-white/85">
+            <CheckIcon className="h-4 w-4" /> Your resume is already loaded — no need to upload again
+          </span>
+          <span className="mt-4 flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white px-4 font-semibold text-pen transition-colors group-hover:bg-pen-wash">
+            {opening === "compare" ? (
+              <>
+                <Spinner /> Getting your comparison ready…
+              </>
+            ) : (
+              <>
+                Compare now <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </>
+            )}
+          </span>
+          {opening === "compare" && <LoadingBar tone="bg-marker" />}
+        </Link>
+
+        {/* Library: the second path. */}
+        <Link
+          href={chosen ? `/library?domain=${chosen.slug}` : "/library"}
+          onClick={open("library")}
+          aria-busy={opening === "library"}
+          className={`group relative flex flex-col overflow-hidden rounded-3xl bg-white p-5 ring-1 ring-edge transition-[transform,opacity] hover:-translate-y-0.5 hover:ring-edge-strong ${
+            opening === "compare" ? "pointer-events-none opacity-40" : ""
+          } ${opening === "library" ? "pointer-events-none" : ""}`}
+        >
+          <LibraryArt />
+          <span className="mt-4 font-display text-2xl leading-tight font-extrabold">Read resumes like yours</span>
+          <span className="mt-1.5 flex-1 text-[0.95rem] text-soft">{browseDetail}</span>
+          <span className="mt-4 flex min-h-12 items-center justify-center gap-2 rounded-2xl border-[1.5px] border-edge-strong px-4 font-semibold transition-colors group-hover:border-text">
+            {opening === "library" ? (
+              <>
+                <Spinner /> Opening the library…
+              </>
+            ) : (
+              <>
+                Browse resumes <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </>
+            )}
+          </span>
+          {opening === "library" && <LoadingBar tone="bg-pen" />}
+        </Link>
       </div>
-      <p className="mt-3 text-sm text-soft">
-        One payment unlocks both: {formatRupees(PRODUCTS.pass.pricePaise)} for {PRODUCTS.pass.accessDays} days, or{" "}
-        {formatRupees(PRODUCTS.lifetime.pricePaise)} for lifetime access. No subscription either way.
+
+      <p className="mt-4 text-center text-sm text-soft">
+        Both are free to try. To see everything, it&apos;s <strong className="font-semibold text-text">{formatRupees(PRODUCTS.pass.pricePaise)}</strong> for{" "}
+        {PRODUCTS.pass.accessDays} days or <strong className="font-semibold text-text">{formatRupees(PRODUCTS.lifetime.pricePaise)}</strong> for life — one
+        payment unlocks both, no subscription.
       </p>
-    </>
+    </div>
+  );
+}
+
+function Spinner() {
+  return <span aria-hidden className="h-4 w-4 shrink-0 rounded-full border-2 border-current border-r-transparent motion-safe:animate-spin" />;
+}
+
+function LoadingBar({ tone }: { tone: string }) {
+  return (
+    <span role="status" className="absolute inset-x-0 bottom-0 h-1 overflow-hidden">
+      <span className="sr-only">Loading</span>
+      <span className={`progress-run block h-full w-2/5 rounded-full ${tone}`} />
+    </span>
+  );
+}
+
+/** Your sheet, with a copied line marked, next to five others. */
+function CompareArt() {
+  return (
+    <span aria-hidden className="flex items-end gap-1.5">
+      <span className="flex h-16 w-12 flex-col gap-1 rounded-lg bg-white p-1.5 shadow-md transition-transform group-hover:-rotate-3">
+        <span className="h-1 w-3/4 rounded-full bg-pen" />
+        <span className="h-1 w-full rounded-full bg-marker" />
+        <span className="h-1 w-5/6 rounded-full bg-edge-strong" />
+        <span className="h-1 w-full rounded-full bg-marker" />
+        <span className="h-1 w-2/3 rounded-full bg-edge-strong" />
+      </span>
+      <span className="mx-1 mb-5 font-mono text-xs font-medium text-white/70">vs</span>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <span
+          key={i}
+          className="flex h-12 w-9 flex-col gap-1 rounded-md bg-white/20 p-1.5 transition-transform group-hover:-translate-y-1"
+          style={{ transitionDelay: `${i * 40}ms` }}
+        >
+          <span className="h-0.5 w-3/4 rounded-full bg-white/70" />
+          <span className="h-0.5 w-full rounded-full bg-white/40" />
+          <span className="h-0.5 w-5/6 rounded-full bg-white/40" />
+          <span className="h-0.5 w-full rounded-full bg-white/40" />
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/** A fanned stack of resumes. */
+function LibraryArt() {
+  return (
+    <span aria-hidden className="relative block h-16 w-24">
+      {[
+        { rotate: "-rotate-12 group-hover:-rotate-[18deg]", left: "left-0", tone: "bg-wash" },
+        { rotate: "rotate-0", left: "left-6", tone: "bg-sheet" },
+        { rotate: "rotate-12 group-hover:rotate-[18deg]", left: "left-12", tone: "bg-white" },
+      ].map((sheet, i) => (
+        <span
+          key={i}
+          className={`absolute top-0 flex h-16 w-12 flex-col gap-1 rounded-lg p-1.5 shadow-md ring-1 ring-edge transition-transform ${sheet.rotate} ${sheet.left} ${sheet.tone}`}
+        >
+          <span className="h-1 w-3/4 rounded-full bg-text/70" />
+          <span className="h-1 w-full rounded-full bg-edge-strong" />
+          <span className="h-1 w-5/6 rounded-full bg-edge-strong" />
+          <span className="h-1 w-full rounded-full bg-edge-strong" />
+        </span>
+      ))}
+    </span>
   );
 }
 
