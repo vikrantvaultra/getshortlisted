@@ -227,7 +227,7 @@ function SampleNotice({ resumes }: { resumes: LibraryResume[] }) {
             openly licensed datasets
           </Link>{" "}
           of generated resumes
-          and show how resumes in each role are usually written. None is a real person&apos;s.
+          and show how resumes in each role are usually written.
         </p>
       )}
       <p>
