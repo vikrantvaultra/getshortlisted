@@ -127,6 +127,11 @@ export const SITE = {
   contactEmail: "hello@getshortlisted.in",
   grievanceEmail: "privacy@getshortlisted.in",
   emailFrom: "Get Shortlisted <hello@getshortlisted.in>",
+  /** The business that runs the site and receives payments. */
+  operator: "Vaultra",
+  operatorUrl: "https://www.vaultra.in/",
+  city: "Mumbai, Maharashtra, India",
+  phone: "+91 93359 92150",
 } as const;
 
 export const LEVELS = ["fresher", "experienced"] as const;
