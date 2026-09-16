@@ -32,7 +32,6 @@ export default function HomePage() {
       indexSize={indexStats().totalDocuments}
       demo={demo}
       topLines={top}
-      exampleLines={[...copiedExamples.slice(0, 2), ORIGINAL_EXAMPLES[1]!]}
       paidEnabled={paidEnabled()}
       domains={paidEnabled() ? domainOptions() : []}
     />

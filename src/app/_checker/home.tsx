@@ -8,7 +8,6 @@ import type { DomainOption } from "@/lib/fields";
 import { holdScannedResume } from "@/lib/scanned-resume";
 import type { TopLinesFile } from "@/lib/scoring/index-file";
 import { HeroSheet } from "./hero-sheet";
-import { LineTester } from "./line-tester";
 import { Result } from "./result";
 import { Scanning } from "./scanning";
 import { TopCopied } from "./top-copied";
@@ -19,7 +18,6 @@ type Props = {
   indexSize: number;
   demo: DemoLine[];
   topLines: TopLinesFile | null;
-  exampleLines: string[];
   paidEnabled: boolean;
   /** Every role, for the result's "Not right? Change it" picker. */
   domains: DomainOption[];
@@ -30,7 +28,7 @@ type State = { phase: "idle"; error: string | null } | { phase: "checking"; file
 const ACCEPT = ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const n = (value: number) => value.toLocaleString("en-IN");
 
-export function Home({ indexSize, demo, topLines, exampleLines, paidEnabled, domains }: Props) {
+export function Home({ indexSize, demo, topLines, paidEnabled, domains }: Props) {
   const [state, setState] = useState<State>({ phase: "idle", error: null });
 
   async function check(file: File) {
@@ -107,11 +105,8 @@ export function Home({ indexSize, demo, topLines, exampleLines, paidEnabled, dom
               everyone else.
             </p>
 
-            <div className="rise mt-8 flex flex-col gap-3 sm:flex-row sm:items-center" style={{ ["--delay" as string]: "240ms" }}>
+            <div className="rise mt-8" style={{ ["--delay" as string]: "240ms" }}>
               {uploadButton("Scan my resume", "w-full text-lg sm:w-auto")}
-              <a href="#try-a-line" className="btn btn-outline w-full sm:w-auto">
-                Try one line first
-              </a>
             </div>
 
             {state.error && (
@@ -137,23 +132,9 @@ export function Home({ indexSize, demo, topLines, exampleLines, paidEnabled, dom
         </div>
       </section>
 
-      {/* ── Try one line ─────────────────────────────────────────────────── */}
-      <section id="try-a-line" className="scroll-mt-20 bg-wash py-16 sm:py-24">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <p className="kicker text-center">No upload needed</p>
-          <h2 className="mt-3 text-center text-title font-extrabold">
-            Paste one line. <span className="marker">Get a verdict.</span>
-          </h2>
-          <p className="mx-auto mt-3 max-w-md text-center text-soft">Pick your proudest bullet point and see if someone else already wrote it.</p>
-          <div className="mt-8">
-            <LineTester examples={exampleLines} indexSize={indexSize} />
-          </div>
-        </div>
-      </section>
-
       {/* ── Most copied ──────────────────────────────────────────────────── */}
       {topLines && topLines.lines.length > 0 && (
-        <section className="py-16 sm:py-24">
+        <section className="bg-wash py-16 sm:py-24">
           <div className="mx-auto max-w-4xl px-4 sm:px-6">
             <p className="kicker">Counted across {n(topLines.documents)} resumes</p>
             <h2 className="mt-3 text-title font-extrabold">
@@ -167,7 +148,7 @@ export function Home({ indexSize, demo, topLines, exampleLines, paidEnabled, dom
       )}
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
-      <section className="bg-wash py-16 sm:py-24">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <h2 className="text-center text-title font-extrabold">How it works</h2>
           <ol className="mt-10 grid gap-4 md:grid-cols-3">
