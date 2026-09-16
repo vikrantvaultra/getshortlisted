@@ -12,9 +12,9 @@ export const metadata: Metadata = { title: "Unlock", robots: { index: false } };
 type Props = { searchParams: Promise<{ restore?: string; next?: string }> };
 
 const PERKS = [
-  "Compare: your resume next to 5 for your target company, built to the shortlisted standard",
-  "Pages, section order, bullets per project and phrasing overlap — counted, not guessed",
-  "Library: read every resume in full, filtered by company, role, year and level",
+  "Compare: your resume next to 5 for your own role — 147 roles, from teacher and nurse to sales and software",
+  "The typical range for your role, plus pages, section order, bullets and phrasing overlap — counted, not guessed",
+  "Library: read every resume in full, filtered by field, role, company and level",
   "Anonymised — no names, contacts or exact dates",
 ];
 

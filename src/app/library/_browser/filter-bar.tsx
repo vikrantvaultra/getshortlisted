@@ -3,10 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { CloseIcon, SearchIcon } from "@/components/icons";
 import { LIBRARY, type Level } from "@/config";
-import { hasActiveFilters, libraryHref, type LibraryFilters } from "@/lib/library-query";
+import { FIELDS, fieldLabel, rememberDomain, type DomainOption, type FieldId } from "@/lib/fields";
+import { ALL_DOMAINS, activeDomain, hasActiveFilters, libraryHref, type LibraryFilters } from "@/lib/library-query";
 import { useLibraryNav } from "./library-nav";
 
 type Props = {
+  domains: DomainOption[];
+  fieldCounts: Partial<Record<FieldId, number>>;
   companies: string[];
   years: number[];
   /** Current filters as parsed from the URL on the server — the source of truth. */
@@ -20,10 +23,15 @@ const LEVEL_LABEL: Record<Level, string> = { fresher: "Fresher", experienced: "E
  * Every control is driven by the URL, so Back, refresh and "Clear" always
  * show the right values.
  */
-export function FilterBar({ companies, years, filters }: Props) {
+export function FilterBar({ domains, fieldCounts, companies, years, filters }: Props) {
   const { navigate } = useLibraryNav();
   const [search, setSearch] = useState(filters.search ?? "");
   const lastSearch = useRef(filters.search ?? "");
+
+  const domainSlug = activeDomain(filters);
+  const domain = domains.find((option) => option.slug === domainSlug);
+  const field = domain?.field ?? filters.field;
+  const domainChoices = field ? domains.filter((option) => option.field === field) : domains;
 
   // URL changed (Back/Forward, chip removed, Clear all): show what the URL says.
   useEffect(() => {
@@ -50,24 +58,38 @@ export function FilterBar({ companies, years, filters }: Props) {
     navigate(libraryHref({ ...next, search: search.trim() || undefined }));
   }
 
+  function chooseDomain(slug: string) {
+    if (slug) rememberDomain(slug);
+    // Company and year lists differ per domain; a stale one would match nothing.
+    apply({ ...filters, domain: slug || ALL_DOMAINS, field: slug ? undefined : field, company: undefined, year: undefined });
+  }
+
+  function chooseField(id: FieldId | "") {
+    apply({ ...filters, field: id || undefined, domain: ALL_DOMAINS, company: undefined, year: undefined });
+  }
+
   const chips: { label: string; remove: LibraryFilters }[] = [];
+  if (domain) chips.push({ label: domain.label, remove: { ...filters, domain: ALL_DOMAINS, field: domain.field } });
+  else if (filters.field) chips.push({ label: fieldLabel(filters.field), remove: { ...filters, field: undefined, domain: ALL_DOMAINS } });
   if (filters.company) chips.push({ label: filters.company, remove: { ...filters, company: undefined } });
   if (filters.search) chips.push({ label: `“${filters.search}”`, remove: { ...filters, search: undefined } });
   if (filters.year) chips.push({ label: String(filters.year), remove: { ...filters, year: undefined } });
   if (filters.level) chips.push({ label: LEVEL_LABEL[filters.level], remove: { ...filters, level: undefined } });
 
+  const active = (on: unknown) => (on ? "border-pen bg-pen-wash font-semibold" : "");
+
   return (
     <div className="mt-7">
       <form
         role="search"
-        className="panel grid grid-cols-2 gap-2.5 p-3 sm:grid-cols-[1.6fr_1.1fr_0.8fr_0.9fr]"
+        className="panel grid grid-cols-2 gap-2.5 p-3 lg:grid-cols-6"
         onSubmit={(event) => {
           event.preventDefault();
           lastSearch.current = search.trim();
           navigate(libraryHref({ ...filters, search: search.trim() || undefined }));
         }}
       >
-        <div className="relative col-span-2 sm:col-span-1">
+        <div className="relative col-span-2 lg:col-span-6">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-faint" />
           <input
             type="search"
@@ -93,46 +115,92 @@ export function FilterBar({ companies, years, filters }: Props) {
         </div>
 
         <select
-          name="company"
-          value={filters.company ?? ""}
-          onChange={(event) => apply({ ...filters, company: event.target.value || undefined })}
-          className={`input col-span-2 sm:col-span-1 ${filters.company ? "border-pen bg-pen-wash font-semibold" : ""}`}
-          aria-label="Company"
+          name="field"
+          value={field ?? ""}
+          onChange={(event) => chooseField(event.target.value as FieldId | "")}
+          className={`input col-span-2 lg:col-span-2 ${active(field)}`}
+          aria-label="Field"
         >
-          <option value="">All companies</option>
-          {companies.map((company) => (
-            <option key={company} value={company}>
-              {company}
+          <option value="">All fields</option>
+          {FIELDS.filter((option) => fieldCounts[option.id]).map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.label} ({fieldCounts[option.id]})
             </option>
           ))}
         </select>
 
         <select
-          name="year"
-          value={filters.year ? String(filters.year) : ""}
-          onChange={(event) => apply({ ...filters, year: event.target.value ? Number(event.target.value) : undefined })}
-          className={`input ${filters.year ? "border-pen bg-pen-wash font-semibold" : ""}`}
-          aria-label="Offer year"
+          name="domain"
+          value={domain?.slug ?? ""}
+          onChange={(event) => chooseDomain(event.target.value)}
+          className={`input col-span-2 lg:col-span-2 ${active(domain)}`}
+          aria-label="Role"
         >
-          <option value="">Any year</option>
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
+          <option value="">{field ? `All ${fieldLabel(field)} roles` : "All roles"}</option>
+          {field
+            ? domainChoices.map((option) => (
+                <option key={option.slug} value={option.slug}>
+                  {option.label}
+                </option>
+              ))
+            : FIELDS.map((group) => (
+                <optgroup key={group.id} label={group.label}>
+                  {domains
+                    .filter((option) => option.field === group.id)
+                    .map((option) => (
+                      <option key={option.slug} value={option.slug}>
+                        {option.label}
+                      </option>
+                    ))}
+                </optgroup>
+              ))}
         </select>
 
         <select
           name="level"
           value={filters.level ?? ""}
           onChange={(event) => apply({ ...filters, level: (event.target.value || undefined) as Level | undefined })}
-          className={`input ${filters.level ? "border-pen bg-pen-wash font-semibold" : ""}`}
+          className={`input ${companies.length || years.length ? "" : "col-span-2"} lg:col-span-2 ${active(filters.level)}`}
           aria-label="Level"
         >
           <option value="">Any level</option>
           <option value="fresher">Fresher</option>
           <option value="experienced">Experienced</option>
         </select>
+
+        {companies.length > 0 && (
+          <select
+            name="company"
+            value={filters.company ?? ""}
+            onChange={(event) => apply({ ...filters, company: event.target.value || undefined })}
+            className={`input lg:col-span-2 ${active(filters.company)}`}
+            aria-label="Company"
+          >
+            <option value="">All companies</option>
+            {companies.map((company) => (
+              <option key={company} value={company}>
+                {company}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {years.length > 0 && (
+          <select
+            name="year"
+            value={filters.year ? String(filters.year) : ""}
+            onChange={(event) => apply({ ...filters, year: event.target.value ? Number(event.target.value) : undefined })}
+            className={`input ${companies.length ? "col-span-2" : ""} lg:col-span-2 ${active(filters.year)}`}
+            aria-label="Year"
+          >
+            <option value="">Any year</option>
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        )}
         <button type="submit" className="sr-only">
           Search
         </button>
@@ -164,7 +232,7 @@ export function FilterBar({ companies, years, filters }: Props) {
             onClick={() => {
               lastSearch.current = "";
               setSearch("");
-              navigate("/library");
+              navigate(libraryHref({ domain: ALL_DOMAINS }));
             }}
             className="px-2 py-1.5 text-sm font-semibold text-pen hover:underline"
           >

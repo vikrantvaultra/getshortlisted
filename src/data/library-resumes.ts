@@ -23,6 +23,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   // ─── TCS ───────────────────────────────────────────────────────────────────
   {
     id: "lib-tcs-01",
+    domain: "Software Engineer",
     company: "TCS",
     role: "Systems Engineer",
     year: 2024,
@@ -32,6 +33,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       B.E., Information Technology — [College removed], Tier 3 — 2020 – 2024
@@ -58,6 +60,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-tcs-02",
+    domain: "Software Engineer",
     company: "TCS",
     role: "Digital Systems Engineer",
     year: 2025,
@@ -67,6 +70,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       SUMMARY
       Final-year CSE student who ships small, finished tools. Comfortable in Python and Java; learning Spring Boot on the job.
@@ -96,6 +100,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-tcs-03",
+    domain: "Software Engineer",
     company: "TCS",
     role: "Assistant Systems Engineer",
     year: 2023,
@@ -105,6 +110,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       CERTIFICATIONS
       • Microsoft Azure Fundamentals (AZ-900)
@@ -127,6 +133,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-tcs-04",
+    domain: "Software Engineer",
     company: "TCS",
     role: "IT Analyst",
     year: 2025,
@@ -136,6 +143,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 2,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       PROFESSIONAL SUMMARY
       Mainframe-to-cloud migration engineer, 4 years. Moved COBOL batch workloads for an insurer onto Java services without a missed settlement cycle.
@@ -161,6 +169,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-tcs-05",
+    domain: "Business Analyst",
     company: "TCS",
     role: "Business Analyst",
     year: 2026,
@@ -170,6 +179,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       MBA, Business Analytics — [College removed], Tier 1 — 2024 – 2026
@@ -194,6 +204,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   // ─── Infosys ───────────────────────────────────────────────────────────────
   {
     id: "lib-infy-01",
+    domain: "Software Engineer",
     company: "Infosys",
     role: "Systems Engineer",
     year: 2024,
@@ -203,6 +214,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       B.E., Computer Science — [College removed], Tier 3 — 2020 – 2024
@@ -226,6 +238,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-infy-02",
+    domain: "Software Engineer",
     company: "Infosys",
     role: "Specialist Programmer",
     year: 2025,
@@ -235,6 +248,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       CODING PROFILE
       Codeforces Expert (peak 1720), 900+ problems solved across Codeforces and LeetCode
@@ -261,6 +275,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-infy-03",
+    domain: "Software Engineer",
     company: "Infosys",
     role: "Technology Analyst",
     year: 2023,
@@ -270,6 +285,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 2,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       SUMMARY
       Salesforce developer, 3.5 years, retail banking. I build the automations service agents actually use.
@@ -293,6 +309,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-infy-04",
+    domain: "Software Engineer",
     company: "Infosys",
     role: "Digital Specialist Engineer",
     year: 2026,
@@ -302,6 +319,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       B.E., Electronics and Communication — [College removed], Tier 2 — 2022 – 2026
@@ -326,6 +344,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-infy-05",
+    domain: "Software Engineer",
     company: "Infosys",
     role: "Systems Engineer",
     year: 2022,
@@ -335,6 +354,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       SKILLS
       Java, Spring Boot, MySQL, HTML, CSS, JavaScript, Git
@@ -360,6 +380,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   // ─── Flipkart ──────────────────────────────────────────────────────────────
   {
     id: "lib-fk-01",
+    domain: "Software Engineer",
     company: "Flipkart",
     role: "SDE-1",
     year: 2024,
@@ -369,6 +390,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       B.Tech, Computer Science — [College removed], Tier 1 — 2020 – 2024
@@ -393,6 +415,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-fk-02",
+    domain: "Business Analyst",
     company: "Flipkart",
     role: "Business Analyst",
     year: 2025,
@@ -402,6 +425,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       Integrated M.Sc, Mathematics and Computing — [College removed], Tier 1 — 2020 – 2025
@@ -425,6 +449,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-fk-03",
+    domain: "Software Engineer",
     company: "Flipkart",
     role: "SDE-2",
     year: 2024,
@@ -434,6 +459,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 2,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       SUMMARY
       Backend engineer, 5 years, high-traffic catalogue and search systems. I care about p99 and on-call sanity.
@@ -456,6 +482,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-fk-04",
+    domain: "Software Engineer",
     company: "Flipkart",
     role: "SDE-1",
     year: 2026,
@@ -465,6 +492,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       B.Tech, Information Technology — [College removed], Tier 2 — 2022 – 2026
@@ -490,6 +518,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-fk-05",
+    domain: "Data Analyst",
     company: "Flipkart",
     role: "Data Analyst",
     year: 2023,
@@ -499,6 +528,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EXPERIENCE
       Data Analyst — Consumer lending app — 2021 – 2023
@@ -523,6 +553,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   // ─── Razorpay ──────────────────────────────────────────────────────────────
   {
     id: "lib-rzp-01",
+    domain: "Backend Developer",
     company: "Razorpay",
     role: "Backend Engineer",
     year: 2025,
@@ -532,6 +563,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EXPERIENCE
       Software Engineer II — Payments infrastructure startup — 2022 – 2025
@@ -552,6 +584,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-rzp-02",
+    domain: "Software Engineer",
     company: "Razorpay",
     role: "SDE-1",
     year: 2024,
@@ -561,6 +594,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       B.Tech, Electrical Engineering — [College removed], Tier 1 — 2020 – 2024
@@ -584,6 +618,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-rzp-03",
+    domain: "Frontend Developer",
     company: "Razorpay",
     role: "Frontend Engineer",
     year: 2023,
@@ -593,6 +628,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       SUMMARY
       Frontend engineer, 3 years. Checkout flows, accessibility, and making slow Android phones feel fast.
@@ -614,6 +650,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-rzp-04",
+    domain: "Data Analyst",
     company: "Razorpay",
     role: "Data Analyst",
     year: 2026,
@@ -623,6 +660,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       B.Tech, Computer Science — [College removed], Tier 2 — 2022 – 2026
@@ -647,6 +685,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-rzp-05",
+    domain: "Software Engineer",
     company: "Razorpay",
     role: "SDE-2",
     year: 2025,
@@ -656,6 +695,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 2,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       SUMMARY
       Platform engineer, 6 years. Rate limiting, API gateways, and multi-region failover for payment APIs.
@@ -679,6 +719,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   // ─── Amazon ────────────────────────────────────────────────────────────────
   {
     id: "lib-amzn-01",
+    domain: "Software Engineer",
     company: "Amazon",
     role: "SDE-1",
     year: 2025,
@@ -688,6 +729,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       B.Tech, Computer Science — [College removed], Tier 1 — 2021 – 2025
@@ -712,6 +754,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-amzn-02",
+    domain: "Data Analyst",
     company: "Amazon",
     role: "Business Intelligence Engineer",
     year: 2024,
@@ -721,6 +764,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EXPERIENCE
       Senior Analyst — Food delivery company — 2021 – 2024
@@ -739,6 +783,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-amzn-03",
+    domain: "Software Engineer",
     company: "Amazon",
     role: "SDE-2",
     year: 2023,
@@ -748,6 +793,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 2,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       SUMMARY
       Backend engineer, 5 years. Inventory and order systems at scale, strong on data modelling and operational excellence.
@@ -770,6 +816,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-amzn-04",
+    domain: "Cloud Engineer",
     company: "Amazon",
     role: "Cloud Support Associate",
     year: 2024,
@@ -779,6 +826,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       CERTIFICATIONS
       • AWS Certified Solutions Architect – Associate
@@ -802,6 +850,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-amzn-05",
+    domain: "Software Engineer",
     company: "Amazon",
     role: "SDE-1",
     year: 2026,
@@ -811,6 +860,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       B.Tech, Computer Science — [College removed], Tier 2 — 2022 – 2026
@@ -839,6 +889,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   // ─── Zoho ──────────────────────────────────────────────────────────────────
   {
     id: "lib-zoho-01",
+    domain: "Software Engineer",
     company: "Zoho",
     role: "Member Technical Staff",
     year: 2024,
@@ -848,6 +899,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       B.E., Computer Science — [College removed], Tier 3 — 2020 – 2024
@@ -870,6 +922,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-zoho-02",
+    domain: "Software Engineer",
     company: "Zoho",
     role: "Software Developer",
     year: 2023,
@@ -879,6 +932,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       SUMMARY
       Java developer, 3 years, accounting software for small businesses. Moved back from Bengaluru to a Tier-2 city office.
@@ -900,6 +954,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-zoho-03",
+    domain: "Software Engineer",
     company: "Zoho",
     role: "Member Technical Staff",
     year: 2025,
@@ -909,6 +964,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       Zoho Schools of Learning — Software Development Programme — 2023 – 2025
@@ -927,6 +983,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-zoho-04",
+    domain: "Qa Engineer",
     company: "Zoho",
     role: "QA Engineer",
     year: 2022,
@@ -936,6 +993,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       CERTIFICATIONS
       • ISTQB Certified Tester Foundation Level
@@ -957,6 +1015,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
   },
   {
     id: "lib-zoho-05",
+    domain: "Software Engineer",
     company: "Zoho",
     role: "Member Technical Staff",
     year: 2026,
@@ -966,6 +1025,7 @@ export const LIBRARY_RESUMES: LibraryResume[] = [
     pageCount: 1,
     verified: true,
     sample: true,
+    origin: "model",
     redactedText: text`
       EDUCATION
       B.Tech, Information Technology — [College removed], Tier 2 — 2022 – 2026

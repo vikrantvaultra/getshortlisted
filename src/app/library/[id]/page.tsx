@@ -4,9 +4,10 @@ import { notFound } from "next/navigation";
 import { ArrowLeftIcon, ShieldIcon } from "@/components/icons";
 import { PayPanel } from "@/components/pay-panel";
 import { ResumeText } from "@/components/resume-text";
-import { ModelResumeTag } from "@/components/sample-tag";
+import { OriginTag } from "@/components/sample-tag";
+import { domainLabel, domainSlug, fieldLabel } from "@/lib/fields";
 import { hasAccess } from "@/lib/server/access";
-import { getResume } from "@/lib/server/library";
+import { getResume, resumeField } from "@/lib/server/library";
 import { demoCheckout } from "@/lib/server/razorpay";
 import { paidEnabled } from "@/lib/site";
 
@@ -22,17 +23,25 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
   // A model resume's year/level/college describe the profile it was written for,
   // not a person who holds the offer. Label them as a target, never as a fact.
   const meta: [string, string][] = [
-    [resume.sample ? "Written for" : "Offer year", resume.sample ? `${resume.year} cycle` : String(resume.year)],
-    ["Level", resume.level === "experienced" ? "Experienced" : "Fresher"],
-    ["College", resume.collegeTier],
-    ["City", resume.city],
-    ["Length", `${resume.pageCount} page${resume.pageCount > 1 ? "s" : ""}`],
+    ["Role", domainLabel(resume.domain)],
+    ["Field", fieldLabel(resumeField(resume))],
   ];
+  if (resume.year !== null) {
+    meta.push(!resume.sample ? ["Offer year", String(resume.year)] : ["Written for", `${resume.year} cycle`]);
+  }
+  meta.push(["Level", resume.level === "experienced" ? "Experienced" : "Fresher"]);
+  if (resume.collegeTier !== "Not disclosed") meta.push(["College", resume.collegeTier]);
+  if (resume.city) meta.push(["City", resume.city]);
+  meta.push(["Length", `${resume.pageCount} page${resume.pageCount > 1 ? "s" : ""}${resume.origin === "open-dataset" ? " (est.)" : ""}`]);
+  const title = resume.company ? `${resume.company} resume` : `${domainLabel(resume.domain)} resume`;
 
   return (
     <article className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-10">
-      <Link href="/library" className="inline-flex items-center gap-1.5 text-sm font-semibold text-soft hover:text-text">
-        <ArrowLeftIcon className="h-4 w-4" /> Back to library
+      <Link
+        href={`/library?domain=${domainSlug(resume.domain)}`}
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-soft hover:text-text"
+      >
+        <ArrowLeftIcon className="h-4 w-4" /> More {domainLabel(resume.domain)} resumes
       </Link>
       <div className="mt-5 grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10">
         <header className="panel rise p-5 lg:sticky lg:top-24">
@@ -40,7 +49,7 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
             {/* "Offer verified" means an admin checked real offer proof. A written
                 model resume has no offer behind it, so it never gets that badge. */}
             {resume.sample ? (
-              <ModelResumeTag className="" />
+              <OriginTag resume={resume} className="" />
             ) : resume.verified ? (
               <span className="chip bg-[#effaf3] text-[#0b6b35]">
                 <ShieldIcon className="h-4 w-4" /> Offer verified
@@ -51,7 +60,7 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
           </div>
           <h1 className="mt-4 text-3xl leading-tight font-extrabold">{resume.role}</h1>
           <p className="mt-1 font-display text-2xl font-semibold">
-            <span className="marker">{resume.company}</span>
+            <span className="marker">{resume.company ?? fieldLabel(resumeField(resume))}</span>
           </p>
           <dl className="mt-5 divide-y divide-edge rounded-2xl bg-wash px-4">
             {meta.map(([label, value]) => (
@@ -61,9 +70,25 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
               </div>
             ))}
           </dl>
-          {resume.sample && (
+          {resume.sample && resume.origin !== "open-dataset" && (
             <p className="mt-4 text-sm text-soft">
               Written to show the structure, specificity and length that clears a first-round screen for this role.
+            </p>
+          )}
+          {resume.origin === "open-dataset" && (
+            <p className="mt-4 text-sm text-soft">
+              An AI-generated example of how {domainLabel(resume.domain)} resumes are usually written — not a real person&apos;s, and not a
+              guarantee of an offer. Names and contact details are removed.
+              {resume.source && (
+                <>
+                  {" "}
+                  Source:{" "}
+                  <a href={resume.source.url} className="underline" target="_blank" rel="noreferrer">
+                    {resume.source.dataset}
+                  </a>{" "}
+                  ({resume.source.license}).
+                </>
+              )}
             </p>
           )}
         </header>
@@ -78,7 +103,7 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
             <div className="absolute inset-0 flex items-start justify-center px-3 pt-8 sm:pt-14">
               <PayPanel
                 className="w-full max-w-sm"
-                title={`Read this ${resume.company} resume in full`}
+                title={`Read this ${title} in full`}
                 demo={demoCheckout()}
               />
             </div>

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { extractResumeUpload, UploadError } from "@/lib/extract/extract";
 import { analyseDocument } from "@/lib/scoring/analyse";
 import { scoreDocument } from "@/lib/scoring/score";
+import { detectDomain, type DomainMatch } from "@/lib/server/domains";
 import { indexStats, lookupDocCounts } from "@/lib/server/phrase-index";
 import { jsonError, rateLimit } from "@/lib/server/request";
 import { randomId, signPayload } from "@/lib/server/crypto";
@@ -17,6 +18,8 @@ export type ScoreResponse = {
   percentage: number;
   lines: { text: string; common: boolean; seenIn: number }[];
   index: ReturnType<typeof indexStats>;
+  /** The job domain this resume reads like, so Compare and the Library can open on it. Not stored. */
+  match: DomainMatch | null;
   /** Signed {scanId, commonCount, totalCount}: lets the share card and share link prove the numbers are real. */
   shareToken: string;
 };
@@ -72,6 +75,7 @@ export async function POST(request: NextRequest) {
       percentage: result.percentage,
       lines: result.lines.map(({ text, common, peakDocCount }) => ({ text, common, seenIn: peakDocCount })),
       index: indexStats(),
+      match: detectDomain(extracted.text),
       shareToken: signPayload({ s: scanId, c: result.commonCount, t: result.totalCount }),
     };
     return NextResponse.json(body, { headers: { "Cache-Control": "no-store" } });

@@ -9,12 +9,18 @@ import type { CollegeTier, Level } from "@/config";
  */
 export type LibraryResume = {
   id: string;
-  company: string;
+  /**
+   * Job domain, using the open datasets' labels ("Teacher", "Java Developer";
+   * see DOMAIN_FIELDS). This is what a scanned resume is matched on.
+   */
+  domain: string;
+  /** Null for open-dataset resumes, which aren't written for a company. */
+  company: string | null;
   role: string;
-  year: number;
+  year: number | null;
   level: Level;
   collegeTier: CollegeTier;
-  city: string;
+  city: string | null;
   pageCount: number;
   redactedText: string;
   /** Offer proof was checked by the admin. */
@@ -27,4 +33,14 @@ export type LibraryResume = {
    * src/app/library/[id]/page.tsx.
    */
   sample: boolean;
+  /**
+   * model        written by us for a company and role
+   * open-dataset an AI-generated resume from an openly licensed dataset
+   * submission   a real candidate's resume, approved by an admin
+   */
+  origin: ResumeOrigin;
+  /** Open-dataset resumes: where it came from, for attribution. */
+  source?: { dataset: string; license: string; url: string };
 };
+
+export type ResumeOrigin = "model" | "open-dataset" | "submission";

@@ -1,4 +1,5 @@
 import type { CollegeTier } from "@/config";
+import { detectDomain } from "./domains";
 import { indexSubmissionText, unindexSubmission } from "./phrase-index";
 import { randomId } from "./crypto";
 import { store, type Submission } from "./store";
@@ -34,8 +35,12 @@ export function approveSubmission(id: string, input: ApproveInput): Submission {
 
   if (submission.consentPublic) {
     const resumeId = randomId("res");
+    // The stated role goes first so it's read as the headline.
+    const match = detectDomain(`${submission.role}\n${redactedText}`);
     store().resumes.set(resumeId, {
       id: resumeId,
+      // Approval needs real resume text, so a match is all but certain; the fallback only keeps the type honest.
+      domain: match?.domain ?? "Information Technology",
       submissionId: submission.id,
       createdAt: new Date().toISOString(),
       company: submission.company,
@@ -48,6 +53,7 @@ export function approveSubmission(id: string, input: ApproveInput): Submission {
       redactedText,
       verified: true,
       sample: submission.sample,
+      origin: "submission",
     });
     submission.resumeId = resumeId;
   }

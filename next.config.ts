@@ -5,16 +5,19 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   // Parsers run in Node (never Edge) and stay out of the bundle.
   serverExternalPackages: ["unpdf", "mammoth"],
-  // The phrase index and share-card fonts are read from disk at runtime.
+  // The phrase index, the role library and share-card fonts are read from disk at runtime.
   outputFileTracingIncludes: {
-    "/api/score": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin"],
-    "/api/compare": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin"],
+    "/api/score": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin", "./data/library/open-library.json"],
+    "/api/compare": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin", "./data/library/open-library.json"],
+    "/compare": ["./data/library/open-library.json"],
+    "/library": ["./data/library/open-library.json"],
+    "/library/[id]": ["./data/library/open-library.json"],
     "/score": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin"],
-    "/": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin", "./data/index/top-lines.json"],
+    "/": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin", "./data/index/top-lines.json", "./data/library/open-library.json"],
     "/api/line": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin"],
     "/sources": ["./data/index/open-sources.json", "./data/index/phrase-index.json", "./data/index/phrase-index.bin"],
     "/admin": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin"],
-    "/admin/submissions/[id]": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin"],
+    "/admin/submissions/[id]": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin", "./data/library/open-library.json"],
     "/delete/[token]": ["./data/index/phrase-index.json", "./data/index/phrase-index.bin"],
     "/api/share-card": ["./assets/fonts/**"],
   },

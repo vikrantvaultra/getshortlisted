@@ -37,8 +37,9 @@ export default function SourcesPage() {
         Where our <span className="font-mono">{n(stats.totalDocuments)}</span> resumes <span className="marker">come from</span>
       </h1>
       <p className="rise mt-4 max-w-2xl text-lg text-soft" style={{ ["--delay" as string]: "120ms" }}>
-        Your resume is compared with every document below. We only use their phrases to count matches — none of these resumes is ever shown to
-        anyone, and emails, phone numbers and links were removed before they were stored.
+        Your resume is compared with every document below. Real people&apos;s resumes are only ever counted — their text is never shown to
+        anyone. A few hundred of the AI-generated ones appear in the Library as labelled examples, with names removed. Emails, phone numbers and
+        links were removed from everything before it was stored.
       </p>
 
       <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">

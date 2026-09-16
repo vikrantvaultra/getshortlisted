@@ -7,37 +7,30 @@ import { CountUp } from "@/components/count-up";
 import { ArrowRightIcon, HighlighterIcon, RefreshIcon, ShareIcon, ShieldIcon, SparkleIcon } from "@/components/icons";
 import { indexSentence } from "@/components/index-statement";
 import { WaitlistForm } from "@/components/waitlist-form";
-import { PRODUCTS } from "@/config";
+import { COMPARE, PRODUCTS } from "@/config";
+import { FIELDS, fieldLabel, rememberDomain, type DomainOption } from "@/lib/fields";
 import { formatRupees } from "@/lib/site";
 import { ShareSheet, type Card } from "./share-sheet";
 
 const PREVIEW_LINES = 8;
 
-const FEATURES = [
-  {
-    href: "/compare",
-    title: "Compare my resume",
-    detail: "Upload yours and see it next to five resumes that got hired at your target company: pages, sections, bullets per project and shared phrasing.",
-    cta: "Start comparing",
-    primary: true,
-  },
-  {
-    href: "/library",
-    title: "Browse the library",
-    detail: "Read real, anonymised resumes from people who got placed. Filter by company, role, year, and fresher or experienced.",
-    cta: "Start browsing",
-    primary: false,
-  },
-];
 const n = (value: number) => value.toLocaleString("en-IN");
 
-export function Result({ result, paidEnabled, onReset }: { result: ScoreResponse; paidEnabled: boolean; onReset: () => void }) {
+type Props = { result: ScoreResponse; paidEnabled: boolean; domains: DomainOption[]; onReset: () => void };
+
+export function Result({ result, paidEnabled, domains, onReset }: Props) {
   const [card, setCard] = useState<Card>({ status: "loading" });
   const [sheetOpen, setSheetOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [openLine, setOpenLine] = useState<number | null>(null);
   const unique = result.totalCount - result.commonCount;
   const lines = showAll ? result.lines : result.lines.slice(0, PREVIEW_LINES);
+  const [domain, setDomain] = useState(result.match?.slug ?? "");
+
+  // Remember the role so Compare and the Library open on it — including after paying, or from the header.
+  useEffect(() => {
+    if (domain) rememberDomain(domain);
+  }, [domain]);
 
   // Prepare the share image in the background so "Share" works in one tap
   // (browsers only open the share sheet straight after a tap).
@@ -182,30 +175,9 @@ export function Result({ result, paidEnabled, onReset }: { result: ScoreResponse
               <SparkleIcon className="h-7 w-7" />
             </span>
             <div>
-              <h2 className="text-2xl leading-tight font-extrabold">See resumes that actually got people hired</h2>
+              <h2 className="text-2xl leading-tight font-extrabold">See how resumes for your role are written</h2>
               {paidEnabled ? (
-                <>
-                  <p className="mt-2 text-soft">Two ways to learn from people who got the offer. Try either one first; you only pay when you want to see the full results.</p>
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    {FEATURES.map((feature) => (
-                      <Link
-                        key={feature.href}
-                        href={feature.href}
-                        className={`group flex flex-col rounded-2xl p-4 ring-1 transition-transform hover:-translate-y-0.5 ${feature.primary ? "bg-pen-wash ring-pen/30" : "bg-white ring-edge"}`}
-                      >
-                        <span className="font-display text-lg leading-tight font-extrabold">{feature.title}</span>
-                        <span className="mt-1.5 flex-1 text-sm text-soft">{feature.detail}</span>
-                        <span className={`mt-4 flex items-center gap-1.5 text-sm font-semibold ${feature.primary ? "text-pen" : "text-text"}`}>
-                          {feature.cta} <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                  <p className="mt-3 text-sm text-soft">
-                    One payment unlocks both: {formatRupees(PRODUCTS.pass.pricePaise)} for {PRODUCTS.pass.accessDays} days, or{" "}
-                    {formatRupees(PRODUCTS.lifetime.pricePaise)} for lifetime access. No subscription either way.
-                  </p>
-                </>
+                <NextSteps domains={domains} domain={domain} onDomain={setDomain} matched={result.match?.slug ?? null} />
               ) : (
                 <>
                   <p className="mt-2 text-soft">We&apos;re collecting real ones from people who got placed. Get one email when it opens.</p>
@@ -224,6 +196,100 @@ export function Result({ result, paidEnabled, onReset }: { result: ScoreResponse
       </section>
 
       {sheetOpen && <ShareSheet card={card} result={result} onClose={() => setSheetOpen(false)} />}
+    </>
+  );
+}
+
+function NextSteps({
+  domains,
+  domain,
+  onDomain,
+  matched,
+}: {
+  domains: DomainOption[];
+  domain: string;
+  onDomain: (slug: string) => void;
+  matched: string | null;
+}) {
+  const chosen = domains.find((option) => option.slug === domain);
+  const features = [
+    {
+      href: chosen ? `/compare?domain=${chosen.slug}` : "/compare",
+      title: "Compare my resume",
+      detail: chosen
+        ? `See yours next to ${COMPARE.SET_SIZE} ${chosen.label} resumes${
+            chosen.total >= 20 ? `, and against the typical ${chosen.label} resume across ${n(chosen.total)} of them` : ""
+          }: pages, sections, bullets and shared phrasing.`
+        : `See yours next to ${COMPARE.SET_SIZE} resumes for your role: pages, sections, bullets and shared phrasing.`,
+      cta: "Start comparing",
+      primary: true,
+    },
+    {
+      href: chosen ? `/library?domain=${chosen.slug}` : "/library",
+      title: chosen ? `Browse ${chosen.label} resumes` : "Browse the library",
+      detail: chosen
+        ? chosen.readable >= COMPARE.SET_SIZE
+          ? `Read ${chosen.readable} ${chosen.label} resumes in full, then explore the rest of ${fieldLabel(chosen.field)}.`
+          : `Read ${chosen.readable ? `${chosen.readable} ${chosen.label} ${chosen.readable === 1 ? "resume" : "resumes"}` : `${chosen.label} examples`}${
+              chosen.borrowedFrom ? ` alongside the closest role, ${chosen.borrowedFrom}` : ""
+            }, and the rest of ${fieldLabel(chosen.field)}.`
+        : `Read example resumes for ${domains.length} roles, from teaching and nursing to sales and software.`,
+      cta: "Start browsing",
+      primary: false,
+    },
+  ];
+
+  return (
+    <>
+      <div className="mt-3 rounded-2xl bg-wash p-3">
+        <label htmlFor="result-domain" className="text-sm text-soft">
+          {domain && domain === matched ? "Your resume reads like" : "Your role"}
+        </label>
+        <select
+          id="result-domain"
+          className={`input mt-1.5 font-semibold ${domain ? "border-pen bg-pen-wash" : ""}`}
+          value={domain}
+          onChange={(event) => onDomain(event.target.value)}
+        >
+          {!domain && <option value="">Pick your role</option>}
+          {FIELDS.map((group) => (
+            <optgroup key={group.id} label={group.label}>
+              {domains
+                .filter((option) => option.field === group.id)
+                .map((option) => (
+                  <option key={option.slug} value={option.slug}>
+                    {option.label}
+                  </option>
+                ))}
+            </optgroup>
+          ))}
+        </select>
+        <p className="mt-1.5 text-xs text-faint">
+          {domain && domain === matched
+            ? "Matched by counting the words in your resume. Not right? Pick yours — both options below follow it."
+            : "Both options below follow this choice."}
+        </p>
+      </div>
+      <p className="mt-4 text-soft">Try either one first; you only pay when you want to see the full results.</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {features.map((feature) => (
+          <Link
+            key={feature.title}
+            href={feature.href}
+            className={`group flex flex-col rounded-2xl p-4 ring-1 transition-transform hover:-translate-y-0.5 ${feature.primary ? "bg-pen-wash ring-pen/30" : "bg-white ring-edge"}`}
+          >
+            <span className="font-display text-lg leading-tight font-extrabold">{feature.title}</span>
+            <span className="mt-1.5 flex-1 text-sm text-soft">{feature.detail}</span>
+            <span className={`mt-4 flex items-center gap-1.5 text-sm font-semibold ${feature.primary ? "text-pen" : "text-text"}`}>
+              {feature.cta} <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </Link>
+        ))}
+      </div>
+      <p className="mt-3 text-sm text-soft">
+        One payment unlocks both: {formatRupees(PRODUCTS.pass.pricePaise)} for {PRODUCTS.pass.accessDays} days, or{" "}
+        {formatRupees(PRODUCTS.lifetime.pricePaise)} for lifetime access. No subscription either way.
+      </p>
     </>
   );
 }

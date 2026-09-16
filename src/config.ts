@@ -67,7 +67,7 @@ export const PRODUCTS = {
     pricePaise: 4900,
     accessDays: 30,
     lifetime: false,
-    description: "Compare your resume with five built to the shortlisted standard, and read every resume in the library.",
+    description: "Compare your resume with five for your own role, and read every resume in the library.",
   },
   lifetime: {
     id: "lifetime",
@@ -81,7 +81,7 @@ export const PRODUCTS = {
      */
     accessDays: 365 * 100,
     lifetime: true,
-    description: "Compare your resume with five built to the shortlisted standard, and read every resume in the library. No expiry.",
+    description: "Compare your resume with five for your own role, and read every resume in the library. No expiry.",
   },
 } as const;
 

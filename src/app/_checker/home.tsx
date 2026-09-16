@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { ScoreResponse } from "@/app/api/score/route";
 import { AlertIcon, ArrowRightIcon, HighlighterIcon, ShareIcon, ShieldIcon, UploadIcon } from "@/components/icons";
+import type { DomainOption } from "@/lib/fields";
 import type { TopLinesFile } from "@/lib/scoring/index-file";
 import { HeroSheet } from "./hero-sheet";
 import { LineTester } from "./line-tester";
@@ -19,6 +20,8 @@ type Props = {
   topLines: TopLinesFile | null;
   exampleLines: string[];
   paidEnabled: boolean;
+  /** Every role, for the result's "Not right? Change it" picker. */
+  domains: DomainOption[];
 };
 
 type State = { phase: "idle"; error: string | null } | { phase: "checking"; fileName: string } | { phase: "result"; result: ScoreResponse };
@@ -26,7 +29,7 @@ type State = { phase: "idle"; error: string | null } | { phase: "checking"; file
 const ACCEPT = ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const n = (value: number) => value.toLocaleString("en-IN");
 
-export function Home({ indexSize, demo, topLines, exampleLines, paidEnabled }: Props) {
+export function Home({ indexSize, demo, topLines, exampleLines, paidEnabled, domains }: Props) {
   const [state, setState] = useState<State>({ phase: "idle", error: null });
 
   async function check(file: File) {
@@ -54,6 +57,7 @@ export function Home({ indexSize, demo, topLines, exampleLines, paidEnabled }: P
       <Result
         result={state.result}
         paidEnabled={paidEnabled}
+        domains={domains}
         onReset={() => {
           setState({ phase: "idle", error: null });
           window.scrollTo({ top: 0 });

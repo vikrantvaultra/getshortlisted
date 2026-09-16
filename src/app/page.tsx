@@ -1,5 +1,6 @@
 import { analyseDocument } from "@/lib/scoring/analyse";
 import { scoreDocument } from "@/lib/scoring/score";
+import { domainOptions } from "@/lib/server/library";
 import { indexStats, lookupDocCounts } from "@/lib/server/phrase-index";
 import { topLines } from "@/lib/server/top-lines";
 import { paidEnabled } from "@/lib/site";
@@ -33,6 +34,7 @@ export default function HomePage() {
       topLines={top}
       exampleLines={[...copiedExamples.slice(0, 2), ORIGINAL_EXAMPLES[1]!]}
       paidEnabled={paidEnabled()}
+      domains={paidEnabled() ? domainOptions() : []}
     />
   );
 }

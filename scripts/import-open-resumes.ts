@@ -33,9 +33,18 @@ const NEAR_DUPLICATE_JACCARD = 0.8;
 const MIN_PHRASES = 40;
 
 type Row = Record<string, unknown>;
-type Doc = { id: string; text: string; domain: string; ext?: "txt" | "md" };
+export type Doc = {
+  id: string;
+  text: string;
+  domain: string;
+  ext?: "txt" | "md";
+  /** Markdown sources only: the text with section headings kept as CAPS lines, for display in the library. */
+  display?: string;
+  /** Synthetic sets publish weaker variants on purpose ("mediocre", "bad", rejected). Only "good" ones may be shown to buyers. */
+  tier?: "good" | "weak";
+};
 
-type Source = {
+export type Source = {
   slug: string;
   dataset: string;
   license: string;
@@ -365,7 +374,7 @@ function renderStructured(row: Row): string {
 
 // ─── Sources (open licenses only) ────────────────────────────────────────────
 
-const SOURCES: Source[] = [
+export const SOURCES: Source[] = [
   {
     slug: "opensporks",
     dataset: "opensporks/resumes",
@@ -439,6 +448,7 @@ const SOURCES: Source[] = [
         id: String(i + 1),
         text: str(row.Resume).replace(/^\s*Here(?:'|’)s[^\n]*\n/i, ""),
         domain: titleCase(str(row.Role)),
+        tier: str(row.Decision) === "select" ? ("good" as const) : ("weak" as const),
       })),
   },
   {
@@ -449,16 +459,26 @@ const SOURCES: Source[] = [
     description: "AI-generated resumes across 47 occupations, at varying quality levels.",
     load: async (refresh) => {
       const dir = await cloneRepo("asenion-synthetic", "asenion-ai/sampled-local-resumes", refresh);
-      return listFiles(dir, (name) => name.startsWith("synthetic_resumes/") && name.endsWith(".md")).map((name) => ({
-        id: path.basename(name, ".md"),
-        // Markdown → plain text: drop heading markers and bold/italic syntax.
-        text: readFileSync(path.join(dir, name), "utf8")
-          .replace(/^\s{0,3}#{1,6}\s+/gm, "")
-          .replace(/\*\*|__/g, "")
-          .replace(/^\s*[-*]\s+/gm, "• "),
-        domain: titleCase(name.split("/")[1]!.replace(/^(mediocre|synthetic)_/, "").replace(/^(synthetic|bad)_/, "").replace(/_resumes$/, "")),
-        ext: "md" as const,
-      }));
+      return listFiles(dir, (name) => name.startsWith("synthetic_resumes/") && name.endsWith(".md")).map((name) => {
+        const markdown = readFileSync(path.join(dir, name), "utf8");
+        return {
+          id: path.basename(name, ".md"),
+          // Markdown → plain text: drop heading markers and bold/italic syntax.
+          text: markdown
+            .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+            .replace(/\*\*|__/g, "")
+            .replace(/^\s*[-*]\s+/gm, "• "),
+          display: markdown
+            .replace(/\r\n?/g, "\n")
+            .replace(/^[ \t]?#[ \t]+(.+)$/gm, (_, heading: string) => heading.trim().toUpperCase())
+            .replace(/^[ \t]{0,3}#{2,6}[ \t]+/gm, "")
+            .replace(/\*\*|__/g, "")
+            .replace(/^[ \t]*[-*][ \t]+/gm, "• "),
+          domain: titleCase(name.split("/")[1]!.replace(/^(mediocre|synthetic)_/, "").replace(/^(synthetic|bad)_/, "").replace(/_resumes$/, "")),
+          ext: "md" as const,
+          tier: /^(?:mediocre_|synthetic_bad_)/.test(name.split("/")[1]!) ? ("weak" as const) : ("good" as const),
+        };
+      });
     },
   },
   {

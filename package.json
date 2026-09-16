@@ -12,7 +12,8 @@
     "corpus:generate": "tsx scripts/generate-reference-corpus.ts",
     "corpus:import-open": "NODE_OPTIONS=--max-old-space-size=6144 tsx scripts/import-open-resumes.ts",
     "corpus:ingest": "NODE_OPTIONS=--max-old-space-size=8192 tsx scripts/ingest-corpus.ts",
-    "corpus:stats": "tsx scripts/corpus-stats.ts"
+    "corpus:stats": "tsx scripts/corpus-stats.ts",
+    "library:build": "NODE_OPTIONS=--max-old-space-size=6144 tsx scripts/build-library.ts"
   },
   "dependencies": {
     "mammoth": "^1.12.3",
