@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeftIcon, ShieldIcon } from "@/components/icons";
 import { PayPanel } from "@/components/pay-panel";
 import { ResumeText } from "@/components/resume-text";
-import { SampleTag } from "@/components/sample-tag";
+import { ModelResumeTag } from "@/components/sample-tag";
 import { PRODUCTS } from "@/config";
 import { hasAccess } from "@/lib/server/access";
 import { getResume } from "@/lib/server/library";
@@ -20,8 +20,10 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
   const resume = getResume((await params).id);
   if (!resume) notFound();
 
+  // A model resume's year/level/college describe the profile it was written for,
+  // not a person who holds the offer. Label them as a target, never as a fact.
   const meta: [string, string][] = [
-    ["Offer year", String(resume.year)],
+    [resume.sample ? "Written for" : "Offer year", resume.sample ? `${resume.year} cycle` : String(resume.year)],
     ["Level", resume.level === "experienced" ? "Experienced" : "Fresher"],
     ["College", resume.collegeTier],
     ["City", resume.city],
@@ -36,14 +38,17 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
       <div className="mt-5 grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10">
         <header className="panel rise p-5 lg:sticky lg:top-24">
           <div className="flex flex-wrap items-center gap-2">
-            {resume.verified ? (
+            {/* "Offer verified" means an admin checked real offer proof. A written
+                model resume has no offer behind it, so it never gets that badge. */}
+            {resume.sample ? (
+              <ModelResumeTag className="" />
+            ) : resume.verified ? (
               <span className="chip bg-[#effaf3] text-[#0b6b35]">
                 <ShieldIcon className="h-4 w-4" /> Offer verified
               </span>
             ) : (
               <span className="chip">Unverified</span>
             )}
-            {resume.sample && <SampleTag className="" />}
           </div>
           <h1 className="mt-4 text-3xl leading-tight font-extrabold">{resume.role}</h1>
           <p className="mt-1 font-display text-2xl font-semibold">
@@ -57,7 +62,11 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
               </div>
             ))}
           </dl>
-          {resume.sample && <p className="mt-4 text-sm text-soft">Demo resume written for this build — not a real person&apos;s.</p>}
+          {resume.sample && (
+            <p className="mt-4 text-sm text-soft">
+              Written to show the structure, specificity and length that clears a first-round screen for this role.
+            </p>
+          )}
         </header>
         {unlocked ? (
           <div className="sheet-paper rise p-6 sm:p-10" style={{ ["--delay" as string]: "120ms" }}>

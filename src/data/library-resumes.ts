@@ -1,9 +1,11 @@
 import type { LibraryResume } from "./types";
 
 /**
- * Hardcoded sample library. Every entry is demo content written for this
- * build — `sample: true` — and must be labelled as such wherever it appears.
- * Replace with real approved submissions before charging anyone for access.
+ * Hardcoded model-resume library. Every entry is written for this build —
+ * `sample: true` — so no entry may be presented as a real person's resume or
+ * carry the "Offer verified" badge. Buyers see these as "Model resumes":
+ * written to show the structure a shortlisted resume has. As real approved
+ * submissions arrive they sit alongside these and carry the verified badge.
  *
  * Format of `redactedText`: CAPS section headers on their own line, "• "
  * bullets, project/role title lines without a bullet, years only.

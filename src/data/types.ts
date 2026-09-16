@@ -20,9 +20,11 @@ export type LibraryResume = {
   /** Offer proof was checked by the admin. */
   verified: boolean;
   /**
-   * Hardcoded demo content written for this build — not a real person's
-   * resume. Shown with a "Sample" label everywhere and never counted as a
-   * real verified resume in any denominator.
+   * Written by us rather than submitted by a candidate — there is no real
+   * person and no offer behind it. Sold to buyers as a "Model resume", shown
+   * as "Sample" in admin, and never counted as a real verified resume in any
+   * denominator. Must never render the "Offer verified" badge: see
+   * src/app/library/[id]/page.tsx.
    */
   sample: boolean;
 };

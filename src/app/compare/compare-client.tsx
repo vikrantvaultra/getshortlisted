@@ -6,7 +6,7 @@ import { FileField } from "@/components/file-picker";
 import { AlertIcon, ArrowRightIcon, LockIcon, ShieldIcon } from "@/components/icons";
 import { PayPanel } from "@/components/pay-panel";
 import { ResumeText } from "@/components/resume-text";
-import { SampleTag } from "@/components/sample-tag";
+import { ModelResumeTag } from "@/components/sample-tag";
 import { COMPARE, type Level } from "@/config";
 
 const ordinal = (n: number) => `${n}${["th", "st", "nd", "rd"][n % 100 > 10 && n % 100 < 14 ? 0 : n % 10] ?? "th"}`;
@@ -71,7 +71,7 @@ function range(row: Row, columns: CompareColumn[]): string {
 const STEPS = [
   ["Pick a company", "Choose where you're applying. Narrow to fresher or experienced resumes if you like."],
   ["Upload your resume", "PDF or Word. It's read in memory and never stored."],
-  ["See the counts", "Pages, sections, bullets per project and shared phrasing — yours next to five people who got the offer."],
+  ["See the counts", "Pages, sections, bullets per project and shared phrasing — yours next to five resumes built to the shortlisted standard."],
 ] as const;
 
 type Props = { companies: string[]; price: string; accessDays: number; demo: boolean };
@@ -118,11 +118,11 @@ export function CompareClient({ companies, price, accessDays, demo }: Props) {
       <div className="max-w-2xl">
         <p className="kicker">Compare</p>
         <h1 className="mt-2 text-title font-extrabold">
-          Your resume, next to <span className="marker">five that got the offer</span>.
+          Your resume, next to <span className="marker">five that get shortlisted</span>.
         </h1>
         <p className="mt-3 text-lg text-soft">
-          See how your resume is built compared with verified resumes from people who were hired at your target company. Everything is counted,
-          nothing is guessed, and there&apos;s no AI commentary.
+          See how your resume is built compared with five resumes for your target company — model resumes written to the shortlisted standard,
+          plus verified submissions where we have them. Everything is counted, nothing is guessed, and there&apos;s no AI commentary.
         </p>
       </div>
       <ol className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -245,7 +245,7 @@ export function CompareClient({ companies, price, accessDays, demo }: Props) {
                         <th key={column.id} className="px-3 py-3 font-normal">
                           <span className="block font-semibold">
                             {i + 1}. {column.label}
-                            {column.sample && <SampleTag />}
+                            {column.sample && <ModelResumeTag />}
                           </span>
                           <span className="block text-xs text-soft capitalize">{column.meta}</span>
                         </th>
@@ -289,7 +289,7 @@ export function CompareClient({ companies, price, accessDays, demo }: Props) {
                 <div key={column.id} className="sheet-paper w-[85vw] max-w-[380px] shrink-0 snap-start p-5">
                   <p className="font-display text-lg leading-tight font-extrabold">
                     {i + 1}. {column.label}
-                    {column.sample && <SampleTag />}
+                    {column.sample && <ModelResumeTag />}
                   </p>
                   <p className="text-sm text-soft">
                     <span className="font-semibold text-text">{unlocked.company}</span> · <span className="capitalize">{column.meta}</span>

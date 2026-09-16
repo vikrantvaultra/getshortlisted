@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRightIcon, LockIcon } from "@/components/icons";
-import { SampleTag } from "@/components/sample-tag";
+import { ModelResumeTag } from "@/components/sample-tag";
 import type { LibraryResume } from "@/data/types";
 import { hasAccess } from "@/lib/server/access";
 import { hasActiveFilters, parseLibraryParams, type RawSearchParams } from "@/lib/library-query";
@@ -23,6 +23,9 @@ export default async function LibraryPage({ searchParams }: Props) {
   const unlocked = await hasAccess();
   const all = allResumes();
   const { companies, years } = facets();
+  // Real submissions with offer proof checked. Drives whether the page may
+  // claim placed candidates at all — it can't while the library is all models.
+  const placedCount = all.filter((r) => !r.sample && r.verified).length;
 
   const facetValues = { companies, years };
   const { filters, page } = parseLibraryParams(raw, facetValues);
@@ -34,11 +37,20 @@ export default async function LibraryPage({ searchParams }: Props) {
       <section className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 sm:pt-12">
         <p className="kicker">Library</p>
         <h1 className="mt-2 text-title font-extrabold">
-          Resumes that <span className="marker">got the offer</span>
+          Resumes that <span className="marker">get shortlisted</span>
         </h1>
         <p className="mt-3 max-w-2xl text-lg text-soft">
-          Real resumes from people who got placed, anonymised and with the offer checked by hand. Filter by company, role, year and level, then
-          open any one to read it in full.
+          {placedCount > 0 ? (
+            <>
+              {placedCount} anonymised {placedCount === 1 ? "resume" : "resumes"} from people who got placed, each with the offer checked by
+              hand, alongside model resumes written to the same standard.
+            </>
+          ) : (
+            <>
+              Model resumes written to show the structure, specificity and length that clears a first-round screen at each company. Filter by
+              company, role, year and level, then open any one to read it in full.
+            </>
+          )}
         </p>
         {!unlocked && (
           <p className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-marker-soft px-3 py-2 text-sm text-marker-ink">
@@ -109,7 +121,7 @@ function ResumeCard({ resume, locked }: { resume: LibraryResume; locked: boolean
     <div className="sheet-paper flex h-full flex-col p-5">
       <div className="flex items-start justify-between gap-2">
         <p className="font-display text-xl leading-tight font-extrabold">{resume.role}</p>
-        {resume.sample && <SampleTag className="shrink-0" />}
+        {resume.sample && <ModelResumeTag className="shrink-0" />}
       </div>
       <p className="mt-1 font-display text-lg font-semibold">
         <span className="marker">{resume.company}</span>
@@ -151,8 +163,9 @@ function SampleNotice({ count }: { count: number }) {
   if (count === 0) return null;
   return (
     <p className="mx-auto mt-10 max-w-2xl rounded-2xl bg-wash px-4 py-3 text-center text-sm text-soft">
-      {count} of these are marked <SampleTag className="mx-0.5" />: demo resumes written for this build, not real people&apos;s. They show how
-      the library works and will be replaced by verified submissions.
+      {count} of these are <ModelResumeTag className="mx-0.5" />s — written by us to show the structure a shortlisted resume has, rather than
+      submitted by a candidate. Resumes with an <strong className="font-semibold text-text">Offer verified</strong> badge are real submissions
+      with offer proof checked.
     </p>
   );
 }
