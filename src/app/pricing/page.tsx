@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CheckIcon, SparkleIcon } from "@/components/icons";
 import { LegalHeader } from "@/components/legal-header";
 import { PRODUCTS, SITE, type ProductId } from "@/config";
-import { formatRupees } from "@/lib/site";
+import { formatDays, formatRupees } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -41,7 +41,7 @@ export default function PricingPage() {
               key={id}
               name={p.name}
               price={formatRupees(p.pricePaise)}
-              note={p.lifetime ? "one-time · no expiry" : `one-time · ${p.accessDays} days`}
+              note={p.lifetime ? "one-time · no expiry" : `one-time · ${formatDays(p.accessDays)}`}
               perks={PAID_PERKS}
               href="/unlock"
               cta="Get access"

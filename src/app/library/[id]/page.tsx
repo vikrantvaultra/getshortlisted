@@ -63,10 +63,13 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
             <ResumeText text={resume.redactedText} />
           </div>
         ) : (
-          <div className="relative min-h-[36rem] overflow-hidden rounded-[inherit]">
-            <LockedSheet lines={outline(resume.redactedText)} />
+          <div className="relative min-h-[36rem] rounded-[inherit]">
+            {/* The panel sits in the flow, so the page grows with it; only the locked sheet behind is clipped. */}
+            <div aria-hidden className="absolute inset-0 overflow-hidden rounded-[inherit]">
+              <LockedSheet lines={outline(resume.redactedText)} />
+            </div>
             <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-white/20 to-white/90" />
-            <div className="absolute inset-0 flex items-start justify-center px-3 pt-8 sm:pt-14">
+            <div className="relative flex justify-center px-3 pt-8 pb-10 sm:pt-14">
               <PayPanel
                 className="w-full max-w-sm"
                 title={`Read this ${title} in full`}

@@ -699,8 +699,9 @@ function LockedResult({
         ))}
       </div>
 
-      <div className="relative mt-6 min-h-[38rem] overflow-hidden">
-        <div aria-hidden className="pointer-events-none flex gap-4 blur-[3px] select-none">
+      {/* The panel sits in the flow, so the section grows with it; only the blurred sheets behind are clipped. */}
+      <div className="relative mt-6 min-h-[38rem]">
+        <div aria-hidden className="pointer-events-none absolute inset-0 flex gap-4 overflow-hidden blur-[3px] select-none">
           {placed.map((column, i) => (
             <div key={i} className="sheet-paper w-[85vw] max-w-[300px] shrink-0 p-5">
               <p className="font-display text-lg font-extrabold">
@@ -714,7 +715,7 @@ function LockedResult({
           ))}
         </div>
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-white/30 to-white" />
-        <div className="absolute inset-0 flex items-start justify-center px-2 pt-6 sm:pt-10">
+        <div className="relative flex justify-center px-2 pt-6 pb-10 sm:pt-10">
           <PayPanel
             className="w-full max-w-sm"
             title={`Your comparison with ${placed.length} ${name} resumes is ready`}

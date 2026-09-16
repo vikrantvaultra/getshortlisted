@@ -81,9 +81,9 @@ export const RATE_LIMITS = {
 export const PRODUCTS = {
   pass: {
     id: "pass",
-    name: "30-day pass",
+    name: "1-day pass",
     pricePaise: 4900,
-    accessDays: 30,
+    accessDays: 1,
     lifetime: false,
     description: "Compare your resume with five for your own role, and read every resume in the library.",
   },

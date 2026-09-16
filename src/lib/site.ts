@@ -13,6 +13,11 @@ export function formatRupees(paise: number): string {
   return `₹${(paise / 100).toLocaleString("en-IN")}`;
 }
 
+/** "1 day", "30 days". */
+export function formatDays(days: number): string {
+  return `${days} ${days === 1 ? "day" : "days"}`;
+}
+
 export function formatCount(value: number): string {
   return value.toLocaleString("en-IN");
 }

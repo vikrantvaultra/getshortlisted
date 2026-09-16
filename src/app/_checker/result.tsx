@@ -10,7 +10,7 @@ import { RolePicker } from "@/components/role-picker";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { COMPARE, PRODUCTS } from "@/config";
 import { fieldLabel, rememberDomain, type DomainOption } from "@/lib/fields";
-import { formatRupees } from "@/lib/site";
+import { formatDays, formatRupees } from "@/lib/site";
 import { ShareSheet, type Card } from "./share-sheet";
 
 const PREVIEW_LINES = 8;
@@ -313,7 +313,7 @@ function NextSteps({
 
       <p className="mt-4 text-center text-sm text-soft">
         Free to try. To see everything, it&apos;s <strong className="font-semibold text-text">{formatRupees(PRODUCTS.pass.pricePaise)}</strong> for{" "}
-        {PRODUCTS.pass.accessDays} days or <strong className="font-semibold text-text">{formatRupees(PRODUCTS.lifetime.pricePaise)}</strong> for life. No
+        {formatDays(PRODUCTS.pass.accessDays)} or <strong className="font-semibold text-text">{formatRupees(PRODUCTS.lifetime.pricePaise)}</strong> for life. No
         subscription.
       </p>
     </div>

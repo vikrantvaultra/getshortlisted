@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeftIcon, CheckIcon, LockIcon, RefreshIcon, SparkleIcon } from "@/components/icons";
 import { BASE_PRODUCT, PRODUCTS, passesToBeat, type ProductId } from "@/config";
-import { formatRupees } from "@/lib/site";
+import { formatDays, formatRupees } from "@/lib/site";
 
 const TIERS = Object.values(PRODUCTS);
 
@@ -173,7 +173,7 @@ export function PayPanel({ demo, title, startWithRestore = false, onPaid, next, 
                       {/* The panel sits in a max-w-sm column on the paywalls, so the
                           label yields before the price or the badge can wrap. */}
                       <span className="min-w-0 flex-1 truncate text-sm font-medium text-soft">
-                        {tier.lifetime ? "Lifetime" : `${tier.accessDays} days`}
+                        {tier.lifetime ? "Lifetime" : formatDays(tier.accessDays)}
                       </span>
                       {tier.lifetime && (
                         <span className="shrink-0 rounded-md bg-marker-soft px-2 py-0.5 font-mono text-[0.65rem] font-semibold tracking-wide text-marker-ink uppercase">
