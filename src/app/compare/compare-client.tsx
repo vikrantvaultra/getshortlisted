@@ -7,7 +7,7 @@ import { FileField } from "@/components/file-picker";
 import { AlertIcon, ArrowRightIcon, CheckIcon, FileIcon, LockIcon, ShieldIcon, SparkleIcon } from "@/components/icons";
 import { PayPanel } from "@/components/pay-panel";
 import { ResumeText } from "@/components/resume-text";
-import { OriginTag } from "@/components/sample-tag";
+import { ANONYMOUS_CANDIDATE, VerifiedBadge } from "@/components/resume-labels";
 import { COMPARE, type Level } from "@/config";
 import { AUTO_DOMAIN, FIELDS, fieldLabel, rememberDomain, type DomainOption, type FieldId } from "@/lib/fields";
 import { scannedResume } from "@/lib/scanned-resume";
@@ -417,11 +417,11 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
                         <th key={column.id} className="px-3 py-3 font-normal">
                           <span className="block font-semibold">
                             {i + 1}. {column.label}
-                            <OriginTag resume={{ origin: column.origin ?? "submission", sample: column.sample }} />
+                            <VerifiedBadge className="ml-2 align-middle" compact />
                           </span>
                           <span className="block text-xs text-soft capitalize">
-                            {column.company ? `${column.company} · ` : ""}
-                            {column.meta}
+                            {ANONYMOUS_CANDIDATE}
+                            {column.company ? ` · ${column.company}` : ""} · {column.meta}
                           </span>
                         </th>
                       ))}
@@ -470,11 +470,12 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
                 <div key={column.id} className="sheet-paper w-[85vw] max-w-[380px] shrink-0 snap-start p-5">
                   <p className="font-display text-lg leading-tight font-extrabold">
                     {i + 1}. {column.label}
-                    <OriginTag resume={{ origin: column.origin ?? "submission", sample: column.sample }} />
+                    <VerifiedBadge className="ml-2 align-middle" compact />
                   </p>
                   <p className="text-sm text-soft">
-                    {column.company && <span className="font-semibold text-text">{column.company} · </span>}
-                    <span className="capitalize">{column.meta}</span>
+                    {ANONYMOUS_CANDIDATE}
+                    {column.company && <span className="font-semibold text-text"> · {column.company}</span>}
+                    <span className="capitalize"> · {column.meta}</span>
                   </p>
                   <div className="mt-4">
                     <ResumeText text={column.text ?? ""} compact />
@@ -601,8 +602,9 @@ function MoreToRead({ more, locked }: { more: MoreResumes; locked: boolean }) {
               <div className="sheet-paper flex h-full flex-col p-5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-display text-xl leading-tight font-extrabold">{card.role}</p>
-                  <OriginTag resume={card} className="shrink-0" />
+                  <VerifiedBadge className="shrink-0" compact />
                 </div>
+                <p className="mt-1 text-sm font-medium text-soft">{ANONYMOUS_CANDIDATE}</p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {card.company && <span className="chip bg-marker-soft px-2.5 py-1 text-xs font-semibold text-marker-ink">{card.company}</span>}
                   {card.year !== null && <span className="chip bg-white px-2.5 py-1 font-mono text-xs ring-1 ring-edge">{card.year}</span>}

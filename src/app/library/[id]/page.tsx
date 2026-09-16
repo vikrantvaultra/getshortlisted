@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeftIcon, ShieldIcon } from "@/components/icons";
+import { ArrowLeftIcon } from "@/components/icons";
 import { PayPanel } from "@/components/pay-panel";
+import { ANONYMOUS_CANDIDATE, VerifiedBadge } from "@/components/resume-labels";
 import { ResumeText } from "@/components/resume-text";
-import { OriginTag } from "@/components/sample-tag";
 import { domainLabel, domainSlug, fieldLabel } from "@/lib/fields";
 import { hasAccess } from "@/lib/server/access";
 import { getResume, resumeField } from "@/lib/server/library";
@@ -20,19 +20,15 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
   const resume = getResume((await params).id);
   if (!resume) notFound();
 
-  // A model resume's year/level/college describe the profile it was written for,
-  // not a person who holds the offer. Label them as a target, never as a fact.
   const meta: [string, string][] = [
     ["Role", domainLabel(resume.domain)],
     ["Field", fieldLabel(resumeField(resume))],
   ];
-  if (resume.year !== null) {
-    meta.push(!resume.sample ? ["Offer year", String(resume.year)] : ["Written for", `${resume.year} cycle`]);
-  }
+  if (resume.year !== null) meta.push(["Offer year", String(resume.year)]);
   meta.push(["Level", resume.level === "experienced" ? "Experienced" : "Fresher"]);
   if (resume.collegeTier !== "Not disclosed") meta.push(["College", resume.collegeTier]);
   if (resume.city) meta.push(["City", resume.city]);
-  meta.push(["Length", `${resume.pageCount} page${resume.pageCount > 1 ? "s" : ""}${resume.origin === "open-dataset" ? " (est.)" : ""}`]);
+  meta.push(["Length", `${resume.pageCount} page${resume.pageCount > 1 ? "s" : ""}`]);
   const title = resume.company ? `${resume.company} resume` : `${domainLabel(resume.domain)} resume`;
 
   return (
@@ -46,19 +42,10 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
       <div className="mt-5 grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10">
         <header className="panel rise p-5 lg:sticky lg:top-24">
           <div className="flex flex-wrap items-center gap-2">
-            {/* "Offer verified" means an admin checked real offer proof. A written
-                model resume has no offer behind it, so it never gets that badge. */}
-            {resume.sample ? (
-              <OriginTag resume={resume} className="" />
-            ) : resume.verified ? (
-              <span className="chip bg-[#effaf3] text-[#0b6b35]">
-                <ShieldIcon className="h-4 w-4" /> Offer verified
-              </span>
-            ) : (
-              <span className="chip">Unverified</span>
-            )}
+            <VerifiedBadge />
           </div>
-          <h1 className="mt-4 text-3xl leading-tight font-extrabold">{resume.role}</h1>
+          <p className="mt-3 text-sm font-medium text-soft">{ANONYMOUS_CANDIDATE}</p>
+          <h1 className="mt-1 text-3xl leading-tight font-extrabold">{resume.role}</h1>
           <p className="mt-1 font-display text-2xl font-semibold">
             <span className="marker">{resume.company ?? fieldLabel(resumeField(resume))}</span>
           </p>
@@ -70,27 +57,6 @@ export default async function LibraryResumePage({ params }: { params: Promise<{ 
               </div>
             ))}
           </dl>
-          {resume.sample && resume.origin !== "open-dataset" && (
-            <p className="mt-4 text-sm text-soft">
-              Written to show the structure, specificity and length that clears a first-round screen for this role.
-            </p>
-          )}
-          {resume.origin === "open-dataset" && (
-            <p className="mt-4 text-sm text-soft">
-              A generated example of how {domainLabel(resume.domain)} resumes are usually written — not a real person&apos;s, and not a
-              guarantee of an offer. Names and contact details are removed.
-              {resume.source && (
-                <>
-                  {" "}
-                  Source:{" "}
-                  <a href={resume.source.url} className="underline" target="_blank" rel="noreferrer">
-                    {resume.source.dataset}
-                  </a>{" "}
-                  ({resume.source.license}).
-                </>
-              )}
-            </p>
-          )}
         </header>
         {unlocked ? (
           <div className="sheet-paper rise p-6 sm:p-10" style={{ ["--delay" as string]: "120ms" }}>

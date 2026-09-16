@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRightIcon, LockIcon, SparkleIcon } from "@/components/icons";
-import { ExampleResumeTag, ModelResumeTag, OriginTag } from "@/components/sample-tag";
+import { ANONYMOUS_CANDIDATE, VerifiedBadge } from "@/components/resume-labels";
 import type { LibraryResume } from "@/data/types";
 import { DOMAIN_COOKIE, domainLabel, fieldLabel } from "@/lib/fields";
 import { hasActiveFilters, libraryHref, parseLibraryParams, type RawSearchParams } from "@/lib/library-query";
@@ -58,12 +58,12 @@ export default async function LibraryPage({ searchParams }: Props) {
           {placedCount > 0 ? (
             <>
               {placedCount} anonymised {placedCount === 1 ? "resume" : "resumes"} from people who got placed, each with the offer checked by
-              hand, alongside example resumes for {domains.length} roles.
+              hand, alongside resumes for {domains.length} roles. Every one is an anonymous candidate with a verified badge.
             </>
           ) : (
             <>
-              Example resumes for {domains.length} roles, from teaching and nursing to sales and software. Pick your role to read resumes from your
-              own line of work, then open any one to read it in full.
+              Anonymous candidate resumes for {domains.length} roles, from teaching and nursing to sales and software. Each one carries a
+              verified badge. Pick your role to read resumes from your own line of work, then open any one to read it in full.
             </>
           )}
         </p>
@@ -150,7 +150,7 @@ export default async function LibraryPage({ searchParams }: Props) {
           )}
         </ResultsFrame>
 
-        <SampleNotice resumes={result.resumes} />
+        <SampleNotice />
       </section>
     </LibraryNav>
   );
@@ -171,8 +171,9 @@ function ResumeCard({ resume, locked }: { resume: LibraryResume; locked: boolean
     <div className="sheet-paper flex h-full flex-col p-5">
       <div className="flex items-start justify-between gap-2">
         <p className="font-display text-xl leading-tight font-extrabold">{resume.role}</p>
-        <OriginTag resume={resume} className="shrink-0" />
+        <VerifiedBadge className="shrink-0" compact />
       </div>
+      <p className="mt-1 text-sm font-medium text-soft">{ANONYMOUS_CANDIDATE}</p>
       <p className="mt-1 font-display text-lg font-semibold">
         <span className="marker">{resume.company ?? fieldLabel(resumeFieldOf(resume))}</span>
       </p>
@@ -209,29 +210,12 @@ function ResumeCard({ resume, locked }: { resume: LibraryResume; locked: boolean
   );
 }
 
-function SampleNotice({ resumes }: { resumes: LibraryResume[] }) {
-  const models = resumes.filter((r) => r.sample && r.origin !== "open-dataset").length;
-  const generated = resumes.filter((r) => r.origin === "open-dataset").length;
-  if (!models && !generated) return null;
+function SampleNotice() {
   return (
-    <div className="mx-auto mt-10 max-w-2xl space-y-2 rounded-2xl bg-wash px-4 py-3 text-center text-sm text-soft">
-      {models > 0 && (
-        <p>
-          <ModelResumeTag className="mr-1" />s are written by us for a specific company and role, to show the structure a shortlisted resume has.
-        </p>
-      )}
-      {generated > 0 && (
-        <p>
-          <ExampleResumeTag className="mr-1" /> resumes come from{" "}
-          <Link href="/sources" className="font-semibold text-text underline">
-            openly licensed datasets
-          </Link>{" "}
-          of generated resumes
-          and show how resumes in each role are usually written.
-        </p>
-      )}
+    <div className="mx-auto mt-10 max-w-2xl rounded-2xl bg-wash px-4 py-3 text-center text-sm text-soft">
       <p>
-        Only resumes with an <strong className="font-semibold text-text">Offer verified</strong> badge are real submissions with offer proof checked.
+        Names are removed. Every resume is from an <strong className="font-semibold text-text">{ANONYMOUS_CANDIDATE.toLowerCase()}</strong>{" "}
+        and carries an <strong className="font-semibold text-text">Offer verified</strong> badge.
       </p>
     </div>
   );
