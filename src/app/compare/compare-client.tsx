@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { CompareColumn, CompareRanges, CompareResponse, MoreResumes } from "@/app/api/compare/route";
 import { FileField } from "@/components/file-picker";
+import { RolePicker } from "@/components/role-picker";
 import { AlertIcon, ArrowRightIcon, CheckIcon, FileIcon, LockIcon, ShieldIcon, SparkleIcon } from "@/components/icons";
 import { PayPanel } from "@/components/pay-panel";
 import { ResumeText } from "@/components/resume-text";
 import { ANONYMOUS_CANDIDATE, VerifiedBadge } from "@/components/resume-labels";
 import { COMPARE, type Level } from "@/config";
-import { AUTO_DOMAIN, FIELDS, fieldLabel, rememberDomain, type DomainOption, type FieldId } from "@/lib/fields";
+import { AUTO_DOMAIN, fieldLabel, rememberDomain, type DomainOption, type FieldId } from "@/lib/fields";
 import { scannedResume } from "@/lib/scanned-resume";
 
 const ordinal = (n: number) => `${n}${["th", "st", "nd", "rd"][n % 100 > 10 && n % 100 < 14 ? 0 : n % 10] ?? "th"}`;
@@ -125,6 +126,7 @@ type Props = {
 
 /** Companies are only a useful target where the model resumes were written for them. */
 const COMPANY_FIELDS: FieldId[] = ["software", "data", "cloud-security"];
+const AUTO_EXTRAS = [{ value: AUTO_DOMAIN, label: "Match it from my resume" }];
 
 export function CompareClient({ domains, companies, initialDomain, fromScan, demo }: Props) {
   const [domain, setDomain] = useState(initialDomain);
@@ -281,20 +283,14 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
               <label htmlFor="domain" className="field-label">
                 Your role
               </label>
-              <select id="domain" className="input" value={domain} onChange={(e) => chooseDomain(e.target.value)} disabled={busy}>
-                <option value={AUTO_DOMAIN}>Match it from my resume</option>
-                {FIELDS.map((group) => (
-                  <optgroup key={group.id} label={group.label}>
-                    {domains
-                      .filter((option) => option.field === group.id)
-                      .map((option) => (
-                        <option key={option.slug} value={option.slug}>
-                          {option.label}
-                        </option>
-                      ))}
-                  </optgroup>
-                ))}
-              </select>
+              <RolePicker
+                id="domain"
+                domains={domains}
+                value={domain}
+                onChange={chooseDomain}
+                disabled={busy}
+                extras={AUTO_EXTRAS}
+              />
             </div>
             {showCompanies && (
               <div>

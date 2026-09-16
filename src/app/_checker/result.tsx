@@ -6,9 +6,10 @@ import type { ScoreResponse } from "@/app/api/score/route";
 import { CountUp } from "@/components/count-up";
 import { ArrowRightIcon, CheckIcon, HighlighterIcon, RefreshIcon, ShareIcon, ShieldIcon, SparkleIcon } from "@/components/icons";
 import { indexSentence } from "@/components/index-statement";
+import { RolePicker } from "@/components/role-picker";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { COMPARE, PRODUCTS } from "@/config";
-import { FIELDS, fieldLabel, rememberDomain, type DomainOption } from "@/lib/fields";
+import { fieldLabel, rememberDomain, type DomainOption } from "@/lib/fields";
 import { formatRupees } from "@/lib/site";
 import { ShareSheet, type Card } from "./share-sheet";
 
@@ -254,26 +255,7 @@ function NextSteps({
         <label htmlFor="result-domain" className="shrink-0 text-sm font-semibold">
           {domain && domain === matched ? "Your role (matched from your resume)" : "Your role"}
         </label>
-        <select
-          id="result-domain"
-          className="input min-h-11 py-2 font-semibold sm:flex-1"
-          value={domain}
-          onChange={(event) => onDomain(event.target.value)}
-          disabled={opening}
-        >
-          {!domain && <option value="">Pick your role</option>}
-          {FIELDS.map((group) => (
-            <optgroup key={group.id} label={group.label}>
-              {domains
-                .filter((option) => option.field === group.id)
-                .map((option) => (
-                  <option key={option.slug} value={option.slug}>
-                    {option.label}
-                  </option>
-                ))}
-            </optgroup>
-          ))}
-        </select>
+        <RolePicker id="result-domain" className="sm:flex-1" domains={domains} value={domain} onChange={onDomain} disabled={opening} />
       </div>
 
       <Link
