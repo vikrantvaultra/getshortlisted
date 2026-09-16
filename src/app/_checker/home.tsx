@@ -210,14 +210,7 @@ export function Home({ indexSize, demo, topLines, paidEnabled, domains }: Props)
               ],
               [
                 `What are the ${n(indexSize)} resumes?`,
-                <>
-                  Real resumes from openly licensed public datasets, generated example resumes from open datasets, reference resumes we generated from
-                  common resume phrasing, and real resumes shared by people who got placed. Exact and near-duplicate copies are removed.{" "}
-                  <Link href="/sources" className="font-semibold text-pen underline underline-offset-2">
-                    See every source and its license
-                  </Link>
-                  .
-                </>,
+                "Real resumes from openly licensed public datasets, generated example resumes from open datasets, reference resumes we generated from common resume phrasing, and real resumes shared by people who got placed. Exact and near-duplicate copies are removed.",
               ],
             ] as [string, React.ReactNode][]).map(([question, answer]) => (
               <details key={question} className="group panel px-5 py-4 [&_summary::-webkit-details-marker]:hidden">

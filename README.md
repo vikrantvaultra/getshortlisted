@@ -52,7 +52,7 @@ npm run corpus:stats                   # print the summary any time (--top 25 fo
 
 ## Open resume datasets
 
-On top of the generated corpus, the index includes resumes from **openly licensed public datasets** (Hugging Face). Only datasets with an explicit open license are used: CC0, MIT, Apache-2.0 and Unlicense. See `OPEN_DATA_NOTICE.md` for the list, and `/sources` in the app for live counts.
+On top of the generated corpus, the index includes resumes from **openly licensed public datasets** (Hugging Face). Only datasets with an explicit open license are used: CC0, MIT, Apache-2.0 and Unlicense. See `OPEN_DATA_NOTICE.md` for the list.
 
 ```bash
 npm run corpus:import-open                 # download (cached in corpus/_cache), convert, de-duplicate → corpus/open/<source>/
@@ -62,7 +62,7 @@ npm run corpus:ingest                      # rebuild the index with generated + 
 
 - **Clean-up before saving:** emails, phone numbers and links are stripped before any file is written.
 - **Duplicates removed:** exact copies go, and so do near-duplicates (≥80% of five-word phrases shared, estimated with MinHash). Resumes with fewer than 40 distinct phrases are dropped. Real sources are imported before synthetic ones, so a real resume wins over a synthetic copy.
-- **Real and AI-generated are counted separately** (`documents.openReal` / `documents.openSynthetic` in the index) and shown separately on `/sources` and in the admin dashboard.
+- **Real and AI-generated are counted separately** (`documents.openReal` / `documents.openSynthetic` in the index) and shown separately in the admin dashboard.
 - **Adding a dataset:** add an entry to `SOURCES` in `scripts/import-open-resumes.ts`, with its license checked first.
 - **Removing a source:** delete `corpus/open/<source>/`, remove it from `data/index/open-sources.json`, and rebuild.
 - **Excluded datasets:** ones with no license or a non-commercial license. `resume-atlas` is also excluded because its text has stop-words removed, so its phrases could never match a real resume.

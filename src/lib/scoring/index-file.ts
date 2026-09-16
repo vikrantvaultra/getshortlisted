@@ -11,7 +11,7 @@ import path from "node:path";
  *   phrase-text.json     key → normalised phrase, common phrases only (stats script)
  *   ingested-files.json  every corpus file counted, with source + content hash
  *   top-lines.json       most repeated whole lines (home page)
- *   open-sources.json    openly licensed datasets imported (the /sources page)
+ *   open-sources.json    openly licensed datasets imported
  *
  * Why binary: real resumes produce ~20M distinct phrases. Only phrases seen in
  * ≥ STORED_MIN_DOC_COUNT documents can ever mark a line as common, and those

@@ -9,8 +9,8 @@
  *   - stats     the middle half (p25–p75) of each Compare measure, counted over
  *               every resume in the domain, real and AI-generated
  *   - resumes   up to RESUMES_PER_DOMAIN readable resumes — AI-GENERATED ONLY.
- *               Real people's resumes are never exported as text: /sources
- *               promises they are only ever counted.
+ *               Real people's resumes are never exported as text: we
+ *               promise they are only ever counted.
  *   - readableFrom  for a domain with too few AI-generated resumes, the
  *               closest domain that has them (same field preferred)
  *   - similar   the closest domains overall, so the app can prefer one that

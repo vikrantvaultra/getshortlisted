@@ -70,8 +70,7 @@ export default function PrivacyPage() {
             <h2>Checking your resume (free tool)</h2>
             <p>
               <strong>What we process:</strong> the resume file you upload. Contact details are stripped, the text is split into phrases and
-              compared against our index, and the result is returned to you. The index is made of resumes from openly licensed public datasets
-              (<a href="/sources">listed here</a>), reference resumes we generated, and real resumes that people have submitted and allowed us to
+              compared against our index, and the result is returned to you. The index is made of resumes from openly licensed public datasets, reference resumes we generated, and real resumes that people have submitted and allowed us to
               include. Only phrase counts are used — no resume from the index is ever shown to anyone through the score.
             </p>
             <p>

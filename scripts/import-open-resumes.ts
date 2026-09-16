@@ -12,7 +12,7 @@
  * near-duplicate resumes (the same resume re-uploaded with small edits) are
  * dropped, so the count is distinct resumes. A manifest with source, license,
  * kind (real vs synthetic), domains and counts is written to
- * data/index/open-sources.json and powers the public /sources page.
+ * data/index/open-sources.json.
  */
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
