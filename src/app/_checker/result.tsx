@@ -216,24 +216,17 @@ function NextSteps({
   onDomain: (slug: string) => void;
   matched: string | null;
 }) {
-  // The card that was tapped, while its page loads.
-  const [opening, setOpening] = useState<"compare" | "library" | null>(null);
+  // Set once the button is tapped, while the report page loads.
+  const [opening, setOpening] = useState(false);
   const chosen = domains.find((option) => option.slug === domain);
   const role = chosen?.label;
 
-  const open = (which: "compare" | "library") => (event: React.MouseEvent) => {
-    // A new-tab click leaves this page as it is.
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-    setOpening(which);
-  };
-
-  const browseDetail = chosen
-    ? chosen.readable >= COMPARE.SET_SIZE
-      ? `Read ${chosen.readable} ${chosen.label} resumes from top to bottom, then the rest of ${fieldLabel(chosen.field)}.`
-      : `Read ${chosen.readable ? `${chosen.readable} ${chosen.label}` : chosen.label} ${chosen.readable === 1 ? "resume" : "resumes"}${
-          chosen.borrowedFrom ? ` plus ${chosen.borrowedFrom} ones` : ""
-        }, and the rest of ${fieldLabel(chosen.field)}.`
-    : `Read example resumes for ${domains.length} roles, from teaching and nursing to sales and software.`;
+  // What's inside the report, as numbers. Each only when the role really has it.
+  const inside = [
+    { value: String(COMPARE.SET_SIZE), label: "resumes placed next to yours" },
+    ...(chosen && chosen.total >= 20 ? [{ value: n(chosen.total), label: "counted for the typical range" }] : []),
+    ...(chosen && chosen.readable > COMPARE.SET_SIZE ? [{ value: n(chosen.readable - COMPARE.SET_SIZE), label: "more to read in full" }] : []),
+  ];
 
   return (
     <div className="p-5 sm:p-8">
@@ -264,7 +257,7 @@ function NextSteps({
           className="input min-h-11 py-2 font-semibold sm:flex-1"
           value={domain}
           onChange={(event) => onDomain(event.target.value)}
-          disabled={opening !== null}
+          disabled={opening}
         >
           {!domain && <option value="">Pick your role</option>}
           {FIELDS.map((group) => (
@@ -281,135 +274,106 @@ function NextSteps({
         </select>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-[1.2fr_1fr]">
-        {/* Compare: the main path. */}
-        <Link
-          href={chosen ? `/compare?domain=${chosen.slug}` : "/compare"}
-          onClick={open("compare")}
-          aria-busy={opening === "compare"}
-          className={`group relative flex flex-col overflow-hidden rounded-3xl bg-pen p-5 text-white shadow-[0_14px_30px_-14px_rgba(43,84,255,0.7)] transition-[transform,opacity] hover:-translate-y-0.5 ${
-            opening === "library" ? "pointer-events-none opacity-40" : ""
-          } ${opening === "compare" ? "pointer-events-none" : ""}`}
-        >
-          <CompareArt />
-          <span className="mt-4 font-display text-2xl leading-tight font-extrabold">Compare my resume</span>
-          <span className="mt-1.5 flex-1 text-[0.95rem] text-white/85">
-            {role ? `Yours, side by side with ${COMPARE.SET_SIZE} ${role} resumes` : `Yours, side by side with ${COMPARE.SET_SIZE} resumes for your role`}
-            {chosen && chosen.total >= 20 ? ` — and against the typical range across ${n(chosen.total)} of them.` : "."}
-          </span>
-          <span className="mt-3 flex items-center gap-1.5 text-sm font-medium text-white/85">
-            <CheckIcon className="h-4 w-4" /> Your resume is already loaded — no need to upload again
-          </span>
-          <span className="mt-4 flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white px-4 font-semibold text-pen transition-colors group-hover:bg-pen-wash">
-            {opening === "compare" ? (
-              <>
-                <Spinner /> Getting your comparison ready…
-              </>
-            ) : (
-              <>
-                Compare now <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </>
-            )}
-          </span>
-          {opening === "compare" && <LoadingBar tone="bg-marker" />}
-        </Link>
+      <Link
+        href={chosen ? `/compare?domain=${chosen.slug}` : "/compare"}
+        onClick={(event) => {
+          // A new-tab click leaves this page as it is.
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+          setOpening(true);
+        }}
+        aria-busy={opening}
+        className={`group relative mt-5 block overflow-hidden rounded-3xl bg-pen p-5 text-white shadow-[0_18px_40px_-16px_rgba(43,84,255,0.75)] transition-transform sm:p-7 ${
+          opening ? "pointer-events-none" : "hover:-translate-y-0.5"
+        }`}
+      >
+        <span aria-hidden className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10" />
+        <span aria-hidden className="absolute -bottom-20 -left-10 h-40 w-40 rounded-full bg-white/5" />
 
-        {/* Library: the second path. */}
-        <Link
-          href={chosen ? `/library?domain=${chosen.slug}` : "/library"}
-          onClick={open("library")}
-          aria-busy={opening === "library"}
-          className={`group relative flex flex-col overflow-hidden rounded-3xl bg-white p-5 ring-1 ring-edge transition-[transform,opacity] hover:-translate-y-0.5 hover:ring-edge-strong ${
-            opening === "compare" ? "pointer-events-none opacity-40" : ""
-          } ${opening === "library" ? "pointer-events-none" : ""}`}
-        >
-          <LibraryArt />
-          <span className="mt-4 font-display text-2xl leading-tight font-extrabold">Read resumes like yours</span>
-          <span className="mt-1.5 flex-1 text-[0.95rem] text-soft">{browseDetail}</span>
-          <span className="mt-4 flex min-h-12 items-center justify-center gap-2 rounded-2xl border-[1.5px] border-edge-strong px-4 font-semibold transition-colors group-hover:border-text">
-            {opening === "library" ? (
-              <>
-                <Spinner /> Opening the library…
-              </>
-            ) : (
-              <>
-                Browse resumes <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </>
-            )}
+        <span className="relative grid items-center gap-5 sm:grid-cols-[1fr_auto]">
+          <span>
+            <span className="font-mono text-[0.72rem] tracking-wider text-white/70 uppercase">Your report{role ? ` · ${role}` : ""}</span>
+            <span className="mt-1 block font-display text-[1.7rem] leading-tight font-extrabold sm:text-3xl">See exactly where you stand</span>
+            <span className="mt-1.5 block text-white/85">
+              Your numbers against the typical {role ? `${role} resume` : "resume for your role"}, your resume beside {COMPARE.SET_SIZE} of them, and more to read — on one page.
+            </span>
           </span>
-          {opening === "library" && <LoadingBar tone="bg-pen" />}
-        </Link>
-      </div>
+          <ReportArt />
+        </span>
+
+        <span className={`relative mt-5 grid gap-2 ${inside.length === 3 ? "grid-cols-3" : inside.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
+          {inside.map((item) => (
+            <span key={item.label} className="rounded-2xl bg-white/12 px-3 py-2.5 ring-1 ring-white/15">
+              <span className="block font-display text-2xl leading-none font-extrabold sm:text-3xl">{item.value}</span>
+              <span className="mt-1 block text-xs leading-snug text-white/80 sm:text-sm">{item.label}</span>
+            </span>
+          ))}
+        </span>
+
+        <span className="relative mt-5 flex min-h-14 items-center justify-center gap-2 overflow-hidden rounded-2xl bg-white px-4 text-lg font-bold text-pen shadow-[0_3px_0_rgba(15,17,21,0.18)] transition-colors group-hover:bg-marker group-hover:text-text">
+          {opening ? (
+            <>
+              <Spinner /> Building your report…
+            </>
+          ) : (
+            <>
+              <span aria-hidden className="shine pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-pen/15 to-transparent" />
+              Show my report <ArrowRightIcon className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </>
+          )}
+        </span>
+        <span className="relative mt-3 flex items-center justify-center gap-1.5 text-sm text-white/85">
+          <CheckIcon className="h-4 w-4" /> Your resume is already loaded — ready in seconds
+        </span>
+        {opening && <LoadingBar />}
+      </Link>
 
       <p className="mt-4 text-center text-sm text-soft">
-        Both are free to try. To see everything, it&apos;s <strong className="font-semibold text-text">{formatRupees(PRODUCTS.pass.pricePaise)}</strong> for{" "}
-        {PRODUCTS.pass.accessDays} days or <strong className="font-semibold text-text">{formatRupees(PRODUCTS.lifetime.pricePaise)}</strong> for life — one
-        payment unlocks both, no subscription.
+        Free to try. To see everything, it&apos;s <strong className="font-semibold text-text">{formatRupees(PRODUCTS.pass.pricePaise)}</strong> for{" "}
+        {PRODUCTS.pass.accessDays} days or <strong className="font-semibold text-text">{formatRupees(PRODUCTS.lifetime.pricePaise)}</strong> for life. No
+        subscription.
       </p>
     </div>
   );
 }
 
 function Spinner() {
-  return <span aria-hidden className="h-4 w-4 shrink-0 rounded-full border-2 border-current border-r-transparent motion-safe:animate-spin" />;
+  return <span aria-hidden className="h-5 w-5 shrink-0 rounded-full border-2 border-current border-r-transparent motion-safe:animate-spin" />;
 }
 
-function LoadingBar({ tone }: { tone: string }) {
+function LoadingBar() {
   return (
-    <span role="status" className="absolute inset-x-0 bottom-0 h-1 overflow-hidden">
-      <span className="sr-only">Loading</span>
-      <span className={`progress-run block h-full w-2/5 rounded-full ${tone}`} />
+    <span role="status" className="absolute inset-x-0 bottom-0 h-1.5 overflow-hidden">
+      <span className="sr-only">Loading your report</span>
+      <span className="progress-run block h-full w-2/5 rounded-full bg-marker" />
     </span>
   );
 }
 
-/** Your sheet, with a copied line marked, next to five others. */
-function CompareArt() {
+/** Your sheet, with copied lines marked, in front of the others. */
+function ReportArt() {
   return (
-    <span aria-hidden className="flex items-end gap-1.5">
-      <span className="flex h-16 w-12 flex-col gap-1 rounded-lg bg-white p-1.5 shadow-md transition-transform group-hover:-rotate-3">
-        <span className="h-1 w-3/4 rounded-full bg-pen" />
-        <span className="h-1 w-full rounded-full bg-marker" />
-        <span className="h-1 w-5/6 rounded-full bg-edge-strong" />
-        <span className="h-1 w-full rounded-full bg-marker" />
-        <span className="h-1 w-2/3 rounded-full bg-edge-strong" />
-      </span>
-      <span className="mx-1 mb-5 font-mono text-xs font-medium text-white/70">vs</span>
+    <span aria-hidden className="relative hidden h-28 w-52 sm:block">
       {[0, 1, 2, 3, 4].map((i) => (
-        <span
-          key={i}
-          className="flex h-12 w-9 flex-col gap-1 rounded-md bg-white/20 p-1.5 transition-transform group-hover:-translate-y-1"
-          style={{ transitionDelay: `${i * 40}ms` }}
-        >
-          <span className="h-0.5 w-3/4 rounded-full bg-white/70" />
-          <span className="h-0.5 w-full rounded-full bg-white/40" />
-          <span className="h-0.5 w-5/6 rounded-full bg-white/40" />
-          <span className="h-0.5 w-full rounded-full bg-white/40" />
+        <span key={i} className="absolute top-2" style={{ left: `${44 + i * 28}px`, transform: `rotate(${(i - 2) * 5}deg)` }}>
+          <span
+            className="flex h-20 w-14 flex-col gap-1 rounded-lg bg-white/25 p-2 transition-transform duration-300 group-hover:-translate-y-2"
+            style={{ transitionDelay: `${i * 40}ms` }}
+          >
+            <span className="h-1 w-3/4 rounded-full bg-white/80" />
+            <span className="h-1 rounded-full bg-white/50" />
+            <span className="h-1 w-5/6 rounded-full bg-white/50" />
+            <span className="h-1 rounded-full bg-white/50" />
+          </span>
         </span>
       ))}
-    </span>
-  );
-}
-
-/** A fanned stack of resumes. */
-function LibraryArt() {
-  return (
-    <span aria-hidden className="relative block h-16 w-24">
-      {[
-        { rotate: "-rotate-12 group-hover:-rotate-[18deg]", left: "left-0", tone: "bg-wash" },
-        { rotate: "rotate-0", left: "left-6", tone: "bg-sheet" },
-        { rotate: "rotate-12 group-hover:rotate-[18deg]", left: "left-12", tone: "bg-white" },
-      ].map((sheet, i) => (
-        <span
-          key={i}
-          className={`absolute top-0 flex h-16 w-12 flex-col gap-1 rounded-lg p-1.5 shadow-md ring-1 ring-edge transition-transform ${sheet.rotate} ${sheet.left} ${sheet.tone}`}
-        >
-          <span className="h-1 w-3/4 rounded-full bg-text/70" />
-          <span className="h-1 w-full rounded-full bg-edge-strong" />
-          <span className="h-1 w-5/6 rounded-full bg-edge-strong" />
-          <span className="h-1 w-full rounded-full bg-edge-strong" />
-        </span>
-      ))}
+      <span className="absolute top-3 left-0 flex h-24 w-[4.5rem] -rotate-6 flex-col gap-1.5 rounded-xl bg-white p-2.5 shadow-xl transition-transform duration-300 group-hover:-rotate-12">
+        <span className="h-1.5 w-3/4 rounded-full bg-pen" />
+        <span className="h-1.5 rounded-full bg-marker" />
+        <span className="h-1.5 w-5/6 rounded-full bg-edge-strong" />
+        <span className="h-1.5 rounded-full bg-marker" />
+        <span className="h-1.5 w-2/3 rounded-full bg-edge-strong" />
+        <span className="h-1.5 w-4/5 rounded-full bg-edge-strong" />
+      </span>
     </span>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { CompareColumn, CompareRanges, CompareResponse } from "@/app/api/compare/route";
+import Link from "next/link";
+import type { CompareColumn, CompareRanges, CompareResponse, MoreResumes } from "@/app/api/compare/route";
 import { FileField } from "@/components/file-picker";
 import { AlertIcon, ArrowRightIcon, CheckIcon, FileIcon, LockIcon, ShieldIcon, SparkleIcon } from "@/components/icons";
 import { PayPanel } from "@/components/pay-panel";
@@ -202,14 +203,28 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
   return (
     <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-12">
       <div className="max-w-2xl">
-        <p className="kicker">Compare</p>
-        <h1 className="mt-2 text-title font-extrabold">
-          Your resume, next to <span className="marker">five for your role</span>.
-        </h1>
-        <p className="mt-3 text-lg text-soft">
-          See how your resume is built compared with resumes for the same job — a teacher against teachers, a nurse against nurses — and against
-          the typical range for that role across our open datasets. Everything is counted, nothing is guessed, and there&apos;s no AI commentary.
-        </p>
+        <p className="kicker">{carried ? "Your report" : "Compare"}</p>
+        {carried ? (
+          <>
+            <h1 className="mt-2 text-title font-extrabold">
+              Your resume vs <span className="marker">{chosen ? `${chosen.label} resumes` : "resumes for your role"}</span>
+            </h1>
+            <p className="mt-3 text-lg text-soft">
+              Your numbers next to the typical range, your resume beside {COMPARE.SET_SIZE} others, and more to read — all on this page. Everything
+              is counted, nothing is guessed.
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="mt-2 text-title font-extrabold">
+              Your resume, next to <span className="marker">five for your role</span>.
+            </h1>
+            <p className="mt-3 text-lg text-soft">
+              See how your resume is built compared with resumes for the same job — a teacher against teachers, a nurse against nurses — and against
+              the typical range for that role across our open datasets. Everything is counted, nothing is guessed, and there&apos;s no AI commentary.
+            </p>
+          </>
+        )}
       </div>
       {!carried && (
         <ol className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -350,11 +365,13 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
 
       {result && !busy && <TargetNote result={result} />}
 
+      {result && !busy && <JumpLinks result={result} />}
+
       {result?.locked && !busy && <LockedResult result={result} demo={demo} onPaid={() => void compare(result.target.slug)} />}
 
       {unlocked && you && !busy && (
         <>
-          <section className="mt-8">
+          <section id="counts" className="mt-8 scroll-mt-24">
             <div className="flex flex-wrap items-end justify-between gap-2">
               <h2 className="text-3xl font-extrabold">The counts</h2>
               <p className="max-w-xl text-sm text-soft">
@@ -435,7 +452,7 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
             </div>
           </section>
 
-          <section className="mt-14">
+          <section id="side-by-side" className="mt-14 scroll-mt-24">
             <h2 className="text-3xl font-extrabold">Side by side</h2>
             <p className="mt-1 text-sm text-soft">
               Swipe across. In your column, <span className="marker">highlighted</span> lines use phrasing that also appears in the five.
@@ -468,6 +485,8 @@ export function CompareClient({ domains, companies, initialDomain, fromScan, dem
           </section>
         </>
       )}
+
+      {result && !busy && <MoreToRead more={result.more} locked={result.locked} />}
     </div>
   );
 }
@@ -534,6 +553,92 @@ function Comparing({ targetName }: { targetName: string }) {
   );
 }
 
+/** The report's parts, so the reading list below the table is easy to find. */
+function JumpLinks({ result }: { result: CompareResponse }) {
+  const links = [
+    { href: "#counts", label: "Your numbers" },
+    ...(result.locked ? [] : [{ href: "#side-by-side", label: `Side by side with ${COMPARE.SET_SIZE}` }]),
+    ...(result.more.cards.length ? [{ href: "#more-resumes", label: `More ${result.more.label} resumes` }] : []),
+  ];
+  if (links.length < 2) return null;
+  return (
+    <nav aria-label="On this page" className="mt-4 flex flex-wrap gap-2">
+      {links.map((link) => (
+        <a key={link.href} href={link.href} className="chip bg-white font-semibold text-text ring-1 ring-edge transition-colors hover:ring-pen hover:text-pen">
+          {link.label} <ArrowRightIcon className="h-3.5 w-3.5 rotate-90" />
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+/** The rest of the role's library shelf. Locked cards carry no text, only placeholder bars. */
+function MoreToRead({ more, locked }: { more: MoreResumes; locked: boolean }) {
+  if (!more.cards.length) return null;
+  const library = `/library?domain=${more.slug}`;
+  return (
+    <section id="more-resumes" className="mt-14 scroll-mt-24">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="kicker">From the library</p>
+          <h2 className="mt-1 text-3xl font-extrabold">
+            More <span className="marker">{more.label}</span> resumes to read
+          </h2>
+          <p className="mt-1 text-sm text-soft">
+            {locked
+              ? "Unlock above and every one of these opens in full."
+              : `Open any one to read it top to bottom. ${more.total.toLocaleString("en-IN")} on this shelf in total.`}
+          </p>
+        </div>
+        <Link href={library} className="btn btn-outline min-h-11 px-4 text-sm">
+          Browse all {more.total.toLocaleString("en-IN")} <ArrowRightIcon className="h-4 w-4" />
+        </Link>
+      </div>
+      <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {more.cards.map((card, i) => (
+          <li key={card.id} className="rise" style={{ ["--delay" as string]: `${i * 50}ms` }}>
+            <Link href={`/library/${card.id}`} className="group block h-full transition-transform hover:-translate-y-1">
+              <div className="sheet-paper flex h-full flex-col p-5">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-display text-xl leading-tight font-extrabold">{card.role}</p>
+                  <OriginTag resume={card} className="shrink-0" />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {card.company && <span className="chip bg-marker-soft px-2.5 py-1 text-xs font-semibold text-marker-ink">{card.company}</span>}
+                  {card.year !== null && <span className="chip bg-white px-2.5 py-1 font-mono text-xs ring-1 ring-edge">{card.year}</span>}
+                  <span className="chip bg-white px-2.5 py-1 text-xs capitalize ring-1 ring-edge">{card.level}</span>
+                </div>
+                {locked ? (
+                  <div aria-hidden className="mt-4 flex-1 space-y-2.5 pt-1 blur-[2px]">
+                    <span className="block h-2 w-11/12 rounded-full bg-edge-strong" />
+                    <span className="block h-2 w-3/4 rounded-full bg-edge-strong" />
+                    <span className="block h-2 w-5/6 rounded-full bg-edge-strong" />
+                  </div>
+                ) : (
+                  <ul className="mt-4 flex-1 space-y-1.5 text-sm text-soft">
+                    {card.preview.map((line) => (
+                      <li key={line} className="line-clamp-2">
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="mt-4 flex items-center justify-between border-t border-edge pt-3 text-sm">
+                  <span className="font-mono text-faint">{card.pageCount}p</span>
+                  <span className="flex items-center gap-1 font-semibold text-pen">
+                    {locked && <LockIcon className="h-3.5 w-3.5" />}
+                    Read <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 /** Which role the comparison used, and why — so a wrong match is easy to spot and fix. */
 function TargetNote({ result }: { result: CompareResponse }) {
   const { target, borrowedFrom } = result;
@@ -573,7 +678,7 @@ function LockedResult({
   const { you, placed, target } = result;
   const name = target.company ?? target.label;
   return (
-    <section className="mt-6">
+    <section id="counts" className="mt-6 scroll-mt-24">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h2 className="text-3xl font-extrabold">The counts</h2>
         <p className="flex items-center gap-1.5 text-sm text-soft">

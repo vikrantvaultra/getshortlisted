@@ -232,3 +232,10 @@ export function compareSet(entry: DomainEntry, options: { company?: string; leve
   }
   return { resumes: resumes.slice(0, COMPARE.SET_SIZE), borrowedFrom, ranges };
 }
+
+/** The rest of a domain's shelf after the Compare set, for "more to read" on Compare. */
+export function moreFromShelf(entry: DomainEntry, exclude: string[], count: number) {
+  const { own, borrowed } = shelf(entry);
+  const resumes = [...own, ...borrowed];
+  return { total: resumes.length, resumes: resumes.filter((resume) => !exclude.includes(resume.id)).slice(0, count) };
+}

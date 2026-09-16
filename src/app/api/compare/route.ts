@@ -5,7 +5,7 @@ import { extractResumeUpload, UploadError } from "@/lib/extract/extract";
 import { AUTO_DOMAIN, domainLabel, type FieldId } from "@/lib/fields";
 import { hasAccess } from "@/lib/server/access";
 import { detectDomain, domainBySlug } from "@/lib/server/domains";
-import { compareCompanies, compareSet } from "@/lib/server/library";
+import { compareCompanies, compareSet, moreFromShelf } from "@/lib/server/library";
 import type { DomainStats, MeasureRange } from "@/lib/server/open-library-types";
 import { jsonError, rateLimit } from "@/lib/server/request";
 import { paidEnabled } from "@/lib/site";
@@ -39,6 +39,25 @@ export type CompareTarget = {
   total: number;
 };
 
+/** A library card on Compare. `preview` is empty without access, like the Library's locked cards. */
+export type ShelfCard = {
+  id: string;
+  role: string;
+  company: string | null;
+  level: Level;
+  year: number | null;
+  pageCount: number;
+  origin: ResumeOrigin;
+  sample: boolean;
+  preview: string[];
+};
+
+/** More of the role's library shelf, beyond the five in the comparison. */
+export type MoreResumes = { slug: string; label: string; total: number; cards: ShelfCard[] };
+
+/** Cards shown under the comparison. */
+const MORE_CARDS = 6;
+
 export type CompareRanges = Partial<Record<keyof DomainStats, MeasureRange>>;
 
 /**
@@ -47,14 +66,25 @@ export type CompareRanges = Partial<Record<keyof DomainStats, MeasureRange>>;
  * leave the server until they pay, so the locked preview can't be read from devtools.
  */
 export type CompareResponse =
-  | { locked: false; target: CompareTarget; borrowedFrom: string | null; ranges: CompareRanges; columns: CompareColumn[] }
+  | { locked: false; target: CompareTarget; borrowedFrom: string | null; more: MoreResumes; ranges: CompareRanges; columns: CompareColumn[] }
   | {
       locked: true;
       target: CompareTarget;
       borrowedFrom: string | null;
+      more: MoreResumes;
       you: CompareColumn;
       placed: { meta: string; origin: ResumeOrigin }[];
     };
+
+/** The first two bullets, as the Library's cards show them. */
+function previewLines(text: string): string[] {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => /^[•\-*]\s/.test(line))
+    .slice(0, 2)
+    .map((line) => line.replace(/^[•\-*]\s+/, ""));
+}
 
 function describe(resume: LibraryResume): string {
   if (resume.origin === "open-dataset") return resume.level;
@@ -134,9 +164,31 @@ export async function POST(request: NextRequest) {
       total: entry.real + entry.synthetic,
     };
     const borrowedFrom = set.borrowedFrom ? domainLabel(set.borrowedFrom) : null;
-    const body: CompareResponse = (await hasAccess())
-      ? { locked: false, target, borrowedFrom, ranges: set.ranges, columns: [you, ...placed] }
-      : { locked: true, target, borrowedFrom, you, placed: placed.map(({ meta, origin }) => ({ meta, origin: origin! })) };
+    const unlocked = await hasAccess();
+    const shelf = moreFromShelf(
+      entry,
+      set.resumes.map((resume) => resume.id),
+      MORE_CARDS,
+    );
+    const more: MoreResumes = {
+      slug: entry.slug,
+      label: target.label,
+      total: shelf.total,
+      cards: shelf.resumes.map((resume) => ({
+        id: resume.id,
+        role: resume.role,
+        company: resume.company,
+        level: resume.level,
+        year: resume.year,
+        pageCount: resume.pageCount,
+        origin: resume.origin,
+        sample: resume.sample,
+        preview: unlocked ? previewLines(resume.redactedText) : [],
+      })),
+    };
+    const body: CompareResponse = unlocked
+      ? { locked: false, target, borrowedFrom, more, ranges: set.ranges, columns: [you, ...placed] }
+      : { locked: true, target, borrowedFrom, more, you, placed: placed.map(({ meta, origin }) => ({ meta, origin: origin! })) };
     return NextResponse.json(body, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (error instanceof UploadError) return jsonError(error.message, error.status);
